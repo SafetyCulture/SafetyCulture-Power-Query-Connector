@@ -68,12 +68,21 @@
     <Compile Include="resources.resx">
       <SubType>Code</SubType>
     </Compile>
-    <Content Include="Diagnostics.pqm">
+    <Compile Include="Diagnostics.pqm">
       <SubType>Content</SubType>
-    </Content>
+    </Compile>
     <Content Include="iAuditor.query.pq">
       <SubType>Code</SubType>
     </Content>
+    <Compile Include="Table.ToNavigationTable.pqm">
+      <SubType>Content</SubType>
+    </Compile>
+    <Compile Include="Table.GenerateByPage.pqm">
+      <SubType>Content</SubType>
+    </Compile>
+    <Compile Include="Table.ChangeType.pqm">
+      <SubType>Content</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="BuildExtension" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
