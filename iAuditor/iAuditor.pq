@@ -70,8 +70,75 @@ AuditType = type table [
     ClientSite = nullable text
 ];
 
+GroupType = type table [
+    name = text,
+    id = text
+];
+
+UserType = type table [
+    id = text,
+    organisation_id = text,
+    firstname = text,
+    lastname = text,
+    active = logical
+];
+
+GroupUserType = type table [
+    user_id = text,
+    group_id = text
+];
+
+TemplateType = type table [
+    id = text,
+    archived = logical,
+    name = text,
+    description = nullable text,
+    created_at = datetimezone,
+    modified_at = datetimezone,
+    owner_name = text,
+    owner_id = text,
+    author_name = text,
+    author_id = text
+];
+
+InspectionType = type table [
+    id = text,
+    name = text,
+    archived = logical,
+    owner_name = text,
+    owner_id = text,
+    author_name = text,
+    author_id = text,
+    score = nullable number,
+    max_score = nullable number,
+    score_percentage = nullable number,
+    duration = nullable number,
+    site_id = nullable text,
+    template_id = text,
+    date_started = nullable datetimezone,
+    date_completed = nullable datetimezone,
+    date_modified = nullable datetimezone,
+    created_at = datetimezone,
+    modified_at = datetimezone,
+    latitude = nullable number,
+    longitude = nullable number,
+    document_no = nullable text,
+    prepared_by = nullable text,
+    location = nullable text,
+    conducted_on = nullable datetimezone,
+    personnel = nullable text,
+    client_site = nullable text
+
+];
+
+
 SchemaTable = #table({"Entity", "Type"}, {
-    {"scAudits", AuditType }   
+    {"scAudits", AuditType },
+    {"users", UserType },
+    {"groups", GroupType },
+    {"group_users", GroupUserType },
+    {"templates", TemplateType },
+    {"inspections", InspectionType }
 });
         
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -93,19 +160,69 @@ iAuditorNavTable = (url as text) as table =>
         withItemName = Table.AddColumn(withItemKind, "ItemName", each "Table", type text),
         // Indicate that the node should not be expandable
         withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each true, type logical),
+        // Add function to the table
+        withFunction = Table.Combine({
+            withIsLeaf,
+            Table.FromRecords(
+                {[Name = "GetInspectionsByTemplateID", Data = Value.ReplaceType(GetInspectionsByTemplateID, GetInspectionsByTemplateIDType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]},
+                type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
+            )
+        }),
         // Generate the nav table
-        navTable = Table.ToNavigationTable(withIsLeaf, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+        navTable = Table.ToNavigationTable(withFunction, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
     in
         navTable;
 
-GetEntity = (url as text, entity as text) as table => 
+GetEntity = (url as text, entity as text, optional query as record) as table => 
     let
-        fullUrl = Uri.Combine(url, entity),
+        withQuery = if (query <> null) then entity & "?" & Uri.BuildQueryString(query) else entity,
+        fullUrl = Uri.Combine(url, withQuery),
         schema = GetSchemaForEntity(entity),
         result = GetAllPagesByNextLink(fullUrl, schema),
         appliedSchema = Table.ChangeType(result, schema)
     in
-        appliedSchema;
+        if (Type.Is(schema, UserType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "user_id"}})
+        else if (Type.Is(schema, GroupType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "group_id"}})
+        else
+            appliedSchema;
+
+GetInspectionsByTemplateID = (templateId as list, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
+    let
+        query = [template = templateId],
+        withModifiedAfter = if (modifiedAfter <> null)  then Record.AddField(query, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else query,
+        withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(query, "modified_before", DateTimeZone.ToText(withModifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
+        withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
+        withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "inspections", withCompleted)
+    in
+        table;
+
+GetInspectionsByTemplateIDType = type function (
+    templateIds as (type list meta [
+        Documentation.FieldCaption = "Template IDs",
+        Documentation.FieldDescription = "IDs of the template you want to load the inspections for"
+    ]),
+    optional modifiedAfter as (type datetimezone meta [
+        Documentation.FieldCaption = "Modified After",
+        Documentation.FieldDescription = "Inspections should be last modified after this date and time"
+    ]),
+    optional modifiedBefore as (type datetimezone meta [
+        Documentation.FieldCaption = "Modified Before",
+        Documentation.FieldDescription = "Inspections should be last modified before this date and time"
+    ]),
+    optional archived as (type text meta [
+        Documentation.FieldCaption = "Archived",
+        Documentation.FieldDescription = "Flag indicating should inspections be archived, non archived, or both",
+        Documentation.AllowedValues = { "true", "false", "both" }
+    ]),
+    optional completed as (type text meta [
+        Documentation.FieldCaption = "Completed",
+        Documentation.FieldDescription = "Flag indicating should inspections be completed, non completed, or both",
+        Documentation.AllowedValues = { "true", "false", "both" }
+    ]))
+    as table;
 
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.

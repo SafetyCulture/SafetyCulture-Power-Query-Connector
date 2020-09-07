@@ -5,14 +5,18 @@ shared iAuditor.UnitTest =
     // Put any common variables here if you only want them to be evaluated once
     RootTable = iAuditor.Contents(),
     Audits = RootTable{[Name="scAudits"]}[Data],
+    Users = RootTable{[Name="users"]}[Data],
 
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
     facts =
     {
-        Fact("Check that we have three entries in our nav table", 1, Table.RowCount(RootTable)),
+        Fact("Check that we have three entries in our nav table", 5, Table.RowCount(RootTable)),
         Fact("We have Audits data?", true, not Table.IsEmpty(Audits)),      
-        Fact("Airlines only has 2 columns", 40, List.Count(Table.ColumnNames(Audits)))
+        Fact("Audits has 40 columns", 40, List.Count(Table.ColumnNames(Audits))),
+
+        Fact("We have Users data?", true, not Table.IsEmpty(Users)),      
+        Fact("Users has 5 columns", 5, List.Count(Table.ColumnNames(Users)))
     },
 
     report = Facts.Summarize(facts)
