@@ -6,7 +6,7 @@ BaseUrl = "https://api.safetyculture.io";
 iAuditor = [
     Authentication = [
         Key = [
-            Label = "iAuditor API Token"
+            Label = Extension.LoadString("TokenLabel")
         ]
     ],
     Label = Extension.LoadString("DataSourceLabel")
@@ -17,7 +17,7 @@ iAuditor.Publish = [
     Beta = true,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
-    LearnMoreUrl = "https://powerbi.microsoft.com/",
+    LearnMoreUrl = "https://github.com/SafetyCulture/iAuditor-Power-Query-Connector",
     SourceImage = iAuditor.Icons,
     SourceTypeImage = iAuditor.Icons
 ];
@@ -95,10 +95,10 @@ TemplateType = type table [
     description = nullable text,
     created_at = datetimezone,
     modified_at = datetimezone,
-    owner_name = text,
-    owner_id = text,
-    author_name = text,
-    author_id = text
+    owner_name = nullable text,
+    owner_id = nullable text,
+    author_name = nullable text,
+    author_id = nullable text
 ];
 
 InspectionType = type table [
@@ -121,7 +121,7 @@ InspectionType = type table [
     created_at = datetimezone,
     modified_at = datetimezone,
     latitude = nullable number,
-    longitude = nullable number,
+    longitude = text,
     document_no = nullable text,
     prepared_by = nullable text,
     location = nullable text,
@@ -144,7 +144,7 @@ SchemaTable = #table({"Entity", "Type"}, {
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
 
 [DataSource.Kind="iAuditor"]
-shared iAuditor.Feed = () => GetPage(Uri.Combine(BaseUrl & "/feed/", "scAudits"));
+shared iAuditor.Feed = () => GetPage(Uri.Combine(BaseUrl & "/feed/", "inspections"));
 
 [DataSource.Kind="iAuditor", Publish="iAuditor.Publish"]
 shared iAuditor.Contents = () => iAuditorNavTable(Uri.Combine(BaseUrl, "/feed/"));
@@ -164,7 +164,7 @@ iAuditorNavTable = (url as text) as table =>
         withFunction = Table.Combine({
             withIsLeaf,
             Table.FromRecords(
-                {[Name = "GetInspectionsByTemplateID", Data = Value.ReplaceType(GetInspectionsByTemplateID, GetInspectionsByTemplateIDType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]},
+                {[Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]},
                 type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
             )
         }),
@@ -185,13 +185,16 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "user_id"}})
         else if (Type.Is(schema, GroupType)) then
             Table.RenameColumns(appliedSchema,{{"id", "group_id"}})
+        else if (Type.Is(schema, TemplateType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "template_id"}})
         else
             appliedSchema;
 
-GetInspectionsByTemplateID = (templateId as list, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
+GetInspections = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
     let
-        query = [template = templateId],
-        withModifiedAfter = if (modifiedAfter <> null)  then Record.AddField(query, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else query,
+        query = [],
+        withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
+        withModifiedAfter = if (modifiedAfter <> null)  then Record.AddField(withTemplateIds, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withTemplateIds,
         withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(query, "modified_before", DateTimeZone.ToText(withModifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
         withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
         withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
@@ -199,10 +202,11 @@ GetInspectionsByTemplateID = (templateId as list, optional modifiedAfter as date
     in
         table;
 
-GetInspectionsByTemplateIDType = type function (
-    templateIds as (type list meta [
+GetInspectionsType = type function (
+    optional templateIds as (type text meta [
         Documentation.FieldCaption = "Template IDs",
-        Documentation.FieldDescription = "IDs of the template you want to load the inspections for"
+        Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the inspections for",
+        Documentation.SampleValues = {"template_123,template_345"}
     ]),
     optional modifiedAfter as (type datetimezone meta [
         Documentation.FieldCaption = "Modified After",
@@ -242,7 +246,21 @@ GetPage = (url as text, optional schema as type) as table =>
     let
         body = MakeRequest(url),
         nextLink = GetNextLink(body[metadata]),
-        data = Table.FromRecords(body[data], null, MissingField.UseNull)
+
+        // If we have no schema, use Table.FromRecords() instead
+        // (and hope that our results all have the same fields).
+        // If we have a schema, expand the record using its field names
+        data =
+            if (schema = null) then
+                Table.FromRecords(body[data])
+            else
+                let
+                    // convert the list of records into a table (single column of records)
+                    asTable = Table.FromList(body[data], Splitter.SplitByNothing(), {"Column1"}),
+                    fields = Record.FieldNames(Type.RecordFields(Type.TableRow(schema))),
+                    expanded = Table.ExpandRecordColumn(asTable, "Column1", fields)
+                in
+                    expanded
     in
         data meta [NextLink = nextLink];
 

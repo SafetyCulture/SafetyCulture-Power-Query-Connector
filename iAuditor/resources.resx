@@ -126,4 +126,7 @@
   <data name="DataSourceLabel" xml:space="preserve">
     <value>iAuditor by SafetyCulture</value>
   </data>
+  <data name="TokenLabel" xml:space="preserve">
+    <value>iAuditor API Token</value>
+  </data>
 </root>

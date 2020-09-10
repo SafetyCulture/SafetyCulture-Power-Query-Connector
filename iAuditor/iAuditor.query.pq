@@ -4,19 +4,36 @@ shared iAuditor.UnitTest =
 [
     // Put any common variables here if you only want them to be evaluated once
     RootTable = iAuditor.Contents(),
-    Audits = RootTable{[Name="scAudits"]}[Data],
+    Inspections = RootTable{[Name="inspections"]}[Data],
     Users = RootTable{[Name="users"]}[Data],
+    Groups = RootTable{[Name="groups"]}[Data],
+    GroupUsers = RootTable{[Name="group_users"]}[Data],
+    Templates = RootTable{[Name="templates"]}[Data],
+    GetInspections = RootTable{[Name="GetInspections"]}[Data](null, null, null, null, null),
 
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
     facts =
     {
-        Fact("Check that we have three entries in our nav table", 5, Table.RowCount(RootTable)),
-        Fact("We have Audits data?", true, not Table.IsEmpty(Audits)),      
-        Fact("Audits has 40 columns", 40, List.Count(Table.ColumnNames(Audits))),
+        Fact("Check that we have seven entries in our nav table", 7, Table.RowCount(RootTable)),
+
+        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),      
+        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
 
         Fact("We have Users data?", true, not Table.IsEmpty(Users)),      
-        Fact("Users has 5 columns", 5, List.Count(Table.ColumnNames(Users)))
+        Fact("Users has 5 columns", 5, List.Count(Table.ColumnNames(Users))),
+
+        Fact("We have Groups data?", true, not Table.IsEmpty(Groups)),      
+        Fact("Groups has 2 columns", 2, List.Count(Table.ColumnNames(Groups))),
+
+        Fact("We have Group Users data?", true, not Table.IsEmpty(GroupUsers)),      
+        Fact("Group Users has 2 columns", 2, List.Count(Table.ColumnNames(GroupUsers))),
+
+        Fact("We have Templates data?", true, not Table.IsEmpty(Templates)),      
+        Fact("Templates has 10 columns", 10, List.Count(Table.ColumnNames(Templates))),
+
+        Fact("We have GetInspections data?", true, not Table.IsEmpty(GetInspections)),      
+        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(GetInspections)))
     },
 
     report = Facts.Summarize(facts)
