@@ -143,11 +143,20 @@ SchemaTable = #table({"Entity", "Type"}, {
         
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
 
-[DataSource.Kind="iAuditor"]
-shared iAuditor.Feed = () => GetPage(Uri.Combine(BaseUrl & "/feed/", "inspections"));
-
 [DataSource.Kind="iAuditor", Publish="iAuditor.Publish"]
-shared iAuditor.Contents = () => iAuditorNavTable(Uri.Combine(BaseUrl, "/feed/"));
+shared iAuditor.Contents = Value.ReplaceType(iAuditorImpl, iAuditorType);
+
+iAuditorType = type function (
+    orgName as (type text meta [
+        Documentation.FieldCaption = "Organization name",
+        Documentation.FieldDescription = "Name of your organization",
+        Documentation.SampleValues = {"ACME"}
+    ]))
+    as table meta [
+        Documentation.Name = "iAuditor by SafetyCulture"
+    ];
+
+iAuditorImpl = (orgName as text) as table => iAuditorNavTable(Uri.Combine(BaseUrl, "/feed/"));
 
 iAuditorNavTable = (url as text) as table =>
     let

@@ -3,7 +3,7 @@
 shared iAuditor.UnitTest =
 [
     // Put any common variables here if you only want them to be evaluated once
-    RootTable = iAuditor.Contents(),
+    RootTable = iAuditor.Contents("acme"),
     Inspections = RootTable{[Name="inspections"]}[Data],
     Users = RootTable{[Name="users"]}[Data],
     Groups = RootTable{[Name="groups"]}[Data],
