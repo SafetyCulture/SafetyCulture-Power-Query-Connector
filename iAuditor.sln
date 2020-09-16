@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30320.27
+VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{4DF76451-A46A-4C0B-BE03-459FAAFA07E6}") = "iAuditor", "iAuditor\iAuditor.mproj", "{568B6FA0-563D-4865-8FE1-FEBC59F57A53}"
+Project("{4DF76451-A46A-4C0B-BE03-459FAAFA07E6}") = "iAuditor", "iAuditor.mproj", "{568B6FA0-563D-4865-8FE1-FEBC59F57A53}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF146732-25B7-4072-93B5-2B15AEBF5B27}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A5F1B549-4300-442B-AC6A-E2EF54757606}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
@@ -25,6 +25,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {35BB7B71-949B-43C4-A5B5-43230716DC76}
+		SolutionGuid = {C8000430-1F1B-4C9E-A4DA-76B70A7E106B}
 	EndGlobalSection
 EndGlobal
