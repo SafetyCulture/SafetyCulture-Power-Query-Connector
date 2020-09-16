@@ -155,7 +155,10 @@ iAuditorNavTable = (url as text) as table =>
         withFunction = Table.Combine({
             withIsLeaf,
             Table.FromRecords(
-                {[Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]},
+                {
+                    [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
+                    [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
+                },
                 type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
             )
         }),
@@ -183,7 +186,13 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
         else
             appliedSchema;
 
-GetInspections = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
+GetInspections = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text)
+ => GetFeedData("inspections", templateIds, modifiedAfter, modifiedBefore, archived, completed);
+
+GetInspectionItems = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text)
+ => GetFeedData("inspection_items", templateIds, modifiedAfter, modifiedBefore, archived, completed);
+
+GetFeedData = (feedName as text, optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
     let
         query = [],
         withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
@@ -191,7 +200,7 @@ GetInspections = (optional templateIds as text, optional modifiedAfter as dateti
         withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(query, "modified_before", DateTimeZone.ToText(withModifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
         withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
         withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
-        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "inspections", withCompleted)
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), feedName, withCompleted)
     in
         table;
 
