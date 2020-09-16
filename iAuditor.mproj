@@ -82,6 +82,9 @@
     <Compile Include="Table.ChangeType.pqm">
       <SubType>Content</SubType>
     </Compile>
+    <Compile Include="Value.WaitFor.pqm">
+      <SubType>Content</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="BuildExtension" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">

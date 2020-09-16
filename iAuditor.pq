@@ -27,49 +27,6 @@ iAuditor.Icons = [
     Icon32 = { Extension.Contents("iAuditor32.png"), Extension.Contents("iAuditor40.png"), Extension.Contents("iAuditor48.png"), Extension.Contents("iAuditor64.png") }
 ];
 
-AuditType = type table [
-    Id = text,
-    ItemType = text,
-    Label = text,
-    Response = text,
-    Comment = nullable text,
-    MediaHypertextReference = text,
-    Latitude = number,
-    Longitude = number,
-    ItemScore = nullable number,
-    ItemMaxScore = nullable number,
-    ItemScorePercentage = nullable number,
-    Mandatory = logical,
-    FailedResponse = text,
-    Inactive = logical,
-    ItemID = text,
-    ResponseID = nullable text,
-    ParentID = nullable text,
-    AuditOwner = text,
-    AuditAuthor = text,
-    AuditName = text,
-    AuditScore = number,
-    AuditMaxScore = number,
-    AuditScorePercentage = number,
-    AuditDuration = number,
-    DateStarted = datetimezone,
-    DateCompleted = datetimezone,
-    DateModified = datetimezone,
-    ModifiedAt = datetimezone,
-    CreatedAt = datetimezone,
-    AuditID = text,
-    TemplateID = text,
-    TemplateName = text,
-    TemplateAuthor = text,
-    ItemCategory = nullable text,
-    DocumentNo = nullable text,
-    ConductedOn = datetimezone,
-    PreparedBy = text,
-    Location = text,
-    Personnel = nullable text,
-    ClientSite = nullable text
-];
-
 GroupType = type table [
     name = text,
     id = text
@@ -128,17 +85,42 @@ InspectionType = type table [
     conducted_on = nullable datetimezone,
     personnel = nullable text,
     client_site = nullable text
+];
 
+InspectionItemType = type table [
+    id = text,
+    item_id = text,
+    audit_id = text,
+    template_id = text,
+    parent_id = nullable text,
+    created_at = datetimezone,
+    modified_at = datetimezone,
+    type = text,
+    category = nullable text,
+    label = text,
+    response = text,
+    response_id = text,
+    response_set_id = text,
+    is_failed_response = logical,
+    comment = nullable text,
+    media_hypertext_reference = text,
+    score = nullable number,
+    max_score = nullable number,
+    score_percentage = nullable number,
+    mandatory = logical,
+    inactive = logical,
+    location_latitude = nullable number,
+    location_longitude = nullable number
 ];
 
 
 SchemaTable = #table({"Entity", "Type"}, {
-    {"scAudits", AuditType },
     {"users", UserType },
     {"groups", GroupType },
     {"group_users", GroupUserType },
     {"templates", TemplateType },
-    {"inspections", InspectionType }
+    {"inspections", InspectionType },
+    {"inspection_items", InspectionItemType }
 });
         
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -196,6 +178,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "group_id"}})
         else if (Type.Is(schema, TemplateType)) then
             Table.RenameColumns(appliedSchema,{{"id", "template_id"}})
+        else if (Type.Is(schema, InspectionType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "audit_id"}})
         else
             appliedSchema;
 
@@ -287,28 +271,40 @@ GetNextLink = (response) as nullable text =>
 
 MakeRequest = (url as text) =>
     let
-        _url = Diagnostics.LogValue("Accessing URL", url),
-
         accessToken = Extension.CurrentCredential()[Key],
 
         headers = [
             Accept = "application/json",
-            Authorization = "Bearer " & accessToken
+            Authorization = "Bearer " & accessToken,
+            #"sc-integration-id" = "app-integrations-powerbi",
+            #"sc-integration-version" = "1.0"
         ],
 
-       
-        _headers = Diagnostics.LogValue("headers are", headers),
+        failStatusCodes = {500, 502, 503, 504, 429},
 
-        request = Json.Document(
-            Web.Contents(
-                _url, 
-                [ 
-                    Headers = _headers, 
-                    Query = [ limit = "100" ],
-                    ManualCredentials = true
-                ]
-            )
-        )
+        waitForResult = Value.WaitFor(
+            (iteration) =>
+                let
+                     _url = Diagnostics.LogValue("Accessing URL", url),
+                    result = Web.Contents(
+                        _url, 
+                        [
+                            Headers = headers,
+                            Query = [],
+                            ManualCredentials = true,
+                            ManualStatusHandling = failStatusCodes
+                        ]
+                    ), 
+                    buffered = Binary.Buffer(result),
+                    status = Value.Metadata(result)[Response.Status],
+                    _status = Diagnostics.LogValue("Request finished with status", status),
+                    actualResult = if List.Contains(failStatusCodes, _status) then null else buffered
+                in
+                    actualResult,
+            (iteration) => #duration(0, 0, 0, Number.Power(2, iteration)*2),
+            6), // retry after 4, 8, 16 and 32 seconds
+
+        request = Json.Document(waitForResult)
     in
         request;
 
@@ -326,6 +322,7 @@ Extension.LoadFunction = (name as text) =>
 Table.ChangeType = Extension.LoadFunction("Table.ChangeType.pqm");
 Table.GenerateByPage = Extension.LoadFunction("Table.GenerateByPage.pqm");
 Table.ToNavigationTable = Extension.LoadFunction("Table.ToNavigationTable.pqm");
+Value.WaitFor = Extension.LoadFunction("Value.WaitFor.pqm");
 
 // Diagnostics module contains multiple functions. We can take the ones we need.
 Diagnostics = Extension.LoadFunction("Diagnostics.pqm");

@@ -5,6 +5,7 @@ shared iAuditor.UnitTest =
     // Put any common variables here if you only want them to be evaluated once
     RootTable = iAuditor.Contents("acme"),
     Inspections = RootTable{[Name="inspections"]}[Data],
+    InspectionItems = RootTable{[Name="inspection_items"]}[Data],
     Users = RootTable{[Name="users"]}[Data],
     Groups = RootTable{[Name="groups"]}[Data],
     GroupUsers = RootTable{[Name="group_users"]}[Data],
@@ -13,12 +14,15 @@ shared iAuditor.UnitTest =
 
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
-    facts =
-    {
-        Fact("Check that we have seven entries in our nav table", 7, Table.RowCount(RootTable)),
+   facts =
+   {
+       Fact("Check that we have seven entries in our nav table", 7, Table.RowCount(RootTable)),
 
-        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),      
-        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
+       Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
+       Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
+
+        Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),      
+        Fact("Inspection Items has 23 columns", 23, List.Count(Table.ColumnNames(InspectionItems))),
 
         Fact("We have Users data?", true, not Table.IsEmpty(Users)),      
         Fact("Users has 5 columns", 5, List.Count(Table.ColumnNames(Users))),
@@ -34,9 +38,9 @@ shared iAuditor.UnitTest =
 
         Fact("We have GetInspections data?", true, not Table.IsEmpty(GetInspections)),      
         Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(GetInspections)))
-    },
+   },
 
-    report = Facts.Summarize(facts)
+   report = Facts.Summarize(facts)
 ][report];
 
 /// COMMON UNIT TESTING CODE 
