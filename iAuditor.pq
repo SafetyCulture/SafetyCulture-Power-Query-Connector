@@ -246,7 +246,8 @@ GetAllPagesByNextLink = (url as text, optional schema as type) as table =>
 
 GetPage = (url as text, optional schema as type) as table =>
     let
-        body = MakeRequest(url),
+        limit = if (Type.Is(schema, InspectionItemType)) then 100 else 1000,
+        body = MakeRequest(url, limit),
         nextLink = GetNextLink(body[metadata]),
 
         // If we have no schema, use Table.FromRecords() instead
@@ -278,7 +279,7 @@ GetNextLink = (response) as nullable text =>
         link;
 
 
-MakeRequest = (url as text) =>
+MakeRequest = (url as text, limit as number) =>
     let
         accessToken = Extension.CurrentCredential()[Key],
 
@@ -299,7 +300,7 @@ MakeRequest = (url as text) =>
                         _url, 
                         [
                             Headers = headers,
-                            Query = [],
+                            Query = [ limit = Number.ToText(limit) ],
                             ManualCredentials = true,
                             ManualStatusHandling = failStatusCodes
                         ]
