@@ -97,6 +97,7 @@ InspectionItemType = type table [
     modified_at = datetimezone,
     type = text,
     category = nullable text,
+    category_id = nullable text,
     label = text,
     response = text,
     response_id = text,
@@ -157,7 +158,7 @@ iAuditorNavTable = (url as text) as table =>
             Table.FromRecords(
                 {
                     [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                    [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
+                    [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
                 },
                 type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
             )
@@ -186,13 +187,7 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
         else
             appliedSchema;
 
-GetInspections = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text)
- => GetFeedData("inspections", templateIds, modifiedAfter, modifiedBefore, archived, completed);
-
-GetInspectionItems = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text)
- => GetFeedData("inspection_items", templateIds, modifiedAfter, modifiedBefore, archived, completed);
-
-GetFeedData = (feedName as text, optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
+GetInspections = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
     let
         query = [],
         withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
@@ -200,7 +195,20 @@ GetFeedData = (feedName as text, optional templateIds as text, optional modified
         withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(query, "modified_before", DateTimeZone.ToText(withModifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
         withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
         withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
-        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), feedName, withCompleted)
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "inspections", withCompleted)
+    in
+        table;
+
+GetInspectionItems = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text, optional includeInactive as logical) as table =>
+    let
+        query = [],
+        withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
+        withModifiedAfter = if (modifiedAfter <> null)  then Record.AddField(withTemplateIds, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withTemplateIds,
+        withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(query, "modified_before", DateTimeZone.ToText(withModifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
+        withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
+        withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
+        withIncludeInactive = if (includeInactive <> null) then Record.AddField(withCompleted, "include_inactive", Logical.ToText(includeInactive)) else withCompleted,
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "inspection_items", withIncludeInactive)
     in
         table;
 
@@ -230,6 +238,37 @@ GetInspectionsType = type function (
     ]))
     as table;
 
+GetInspectionItemsType = type function (
+    optional templateIds as (type text meta [
+        Documentation.FieldCaption = "Template IDs",
+        Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the inspections for",
+        Documentation.SampleValues = {"template_123,template_345"}
+    ]),
+    optional modifiedAfter as (type datetimezone meta [
+        Documentation.FieldCaption = "Modified After",
+        Documentation.FieldDescription = "Inspections should be last modified after this date and time"
+    ]),
+    optional modifiedBefore as (type datetimezone meta [
+        Documentation.FieldCaption = "Modified Before",
+        Documentation.FieldDescription = "Inspections should be last modified before this date and time"
+    ]),
+    optional archived as (type text meta [
+        Documentation.FieldCaption = "Archived",
+        Documentation.FieldDescription = "Flag indicating should inspections be archived, non archived, or both",
+        Documentation.AllowedValues = { "true", "false", "both" }
+    ]),
+    optional completed as (type text meta [
+        Documentation.FieldCaption = "Completed",
+        Documentation.FieldDescription = "Flag indicating should inspections be completed, non completed, or both",
+        Documentation.AllowedValues = { "true", "false", "both" }
+    ]),
+    optional includeInactive as (type logical meta [
+        Documentation.FieldCaption = "Include Inactive",
+        Documentation.FieldDescription = "Flag indicating should inactive inspection be included, or not",
+        Documentation.AllowedValues = { true, false }
+    ]))
+    as table;
+
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.
 // Table.GenerateByPage will keep asking for more pages until we return null.
@@ -249,17 +288,18 @@ GetPage = (url as text, optional schema as type) as table =>
         limit = if (Type.Is(schema, InspectionItemType)) then 100 else 1000,
         body = MakeRequest(url, limit),
         nextLink = GetNextLink(body[metadata]),
+        bodyData = if (Record.HasFields(body, "data")) then body[data] else {},
 
         // If we have no schema, use Table.FromRecords() instead
         // (and hope that our results all have the same fields).
         // If we have a schema, expand the record using its field names
         data =
             if (schema = null) then
-                Table.FromRecords(body[data])
+                Table.FromRecords(bodyData)
             else
                 let
                     // convert the list of records into a table (single column of records)
-                    asTable = Table.FromList(body[data], Splitter.SplitByNothing(), {"Column1"}),
+                    asTable = Table.FromList(bodyData, Splitter.SplitByNothing(), {"Column1"}),
                     fields = Record.FieldNames(Type.RecordFields(Type.TableRow(schema))),
                     expanded = Table.ExpandRecordColumn(asTable, "Column1", fields)
                 in
