@@ -34,6 +34,7 @@ GroupType = type table [
 
 UserType = type table [
     id = text,
+    email = text,
     organisation_id = text,
     firstname = text,
     lastname = text,
@@ -98,6 +99,7 @@ InspectionItemType = type table [
     type = text,
     category = nullable text,
     category_id = nullable text,
+    parent_ids = nullable text,
     label = text,
     response = text,
     response_id = text,
@@ -114,6 +116,13 @@ InspectionItemType = type table [
     location_longitude = nullable number
 ];
 
+SiteType = type table [
+    id = text,
+    name = text,
+    creator_id = text,
+    organisation_id = text
+];
+
 
 SchemaTable = #table({"Entity", "Type"}, {
     {"users", UserType },
@@ -121,7 +130,8 @@ SchemaTable = #table({"Entity", "Type"}, {
     {"group_users", GroupUserType },
     {"templates", TemplateType },
     {"inspections", InspectionType },
-    {"inspection_items", InspectionItemType }
+    {"inspection_items", InspectionItemType },
+    {"sites", SiteType }
 });
         
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -184,6 +194,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "template_id"}})
         else if (Type.Is(schema, InspectionType)) then
             Table.RenameColumns(appliedSchema,{{"id", "audit_id"}})
+        else if (Type.Is(schema, SiteType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "site_id"}})
         else
             appliedSchema;
 

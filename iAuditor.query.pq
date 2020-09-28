@@ -10,22 +10,23 @@ shared iAuditor.UnitTest =
     Groups = RootTable{[Name="groups"]}[Data],
     GroupUsers = RootTable{[Name="group_users"]}[Data],
     Templates = RootTable{[Name="templates"]}[Data],
+    Sites = RootTable{[Name="sites"]}[Data],
     GetInspections = RootTable{[Name="GetInspections"]}[Data](null, null, null, null, null),
 
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
    facts =
    {
-       Fact("Check that we have seven entries in our nav table", 8, Table.RowCount(RootTable)),
+       Fact("Check that we have seven entries in our nav table", 9, Table.RowCount(RootTable)),
 
        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
 
         Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),      
-        Fact("Inspection Items has 23 columns", 23, List.Count(Table.ColumnNames(InspectionItems))),
+        Fact("Inspection Items has 25 columns", 25, List.Count(Table.ColumnNames(InspectionItems))),
 
         Fact("We have Users data?", true, not Table.IsEmpty(Users)),      
-        Fact("Users has 5 columns", 5, List.Count(Table.ColumnNames(Users))),
+        Fact("Users has 6 columns", 6, List.Count(Table.ColumnNames(Users))),
 
         Fact("We have Groups data?", true, not Table.IsEmpty(Groups)),      
         Fact("Groups has 2 columns", 2, List.Count(Table.ColumnNames(Groups))),
@@ -35,6 +36,9 @@ shared iAuditor.UnitTest =
 
         Fact("We have Templates data?", true, not Table.IsEmpty(Templates)),      
         Fact("Templates has 10 columns", 10, List.Count(Table.ColumnNames(Templates))),
+
+        Fact("We have Sites data?", true, not Table.IsEmpty(Sites)),      
+        Fact("Templates has 4 columns", 4, List.Count(Table.ColumnNames(Sites))),
 
         Fact("We have GetInspections data?", true, not Table.IsEmpty(GetInspections)),      
         Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(GetInspections)))
