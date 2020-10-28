@@ -22,7 +22,7 @@ shared iAuditor.UnitTest =
     // <Expected Value> and <Actual Value> can be a literal or let statement
    facts =
    {
-       Fact("Check that we have seven entries in our nav table", 10, Table.RowCount(RootTable)),
+       Fact("Check that we have the correct number of entries in our nav table", 10, Table.RowCount(RootTable)),
 
        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
