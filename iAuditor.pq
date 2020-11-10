@@ -144,6 +144,7 @@ ScheduleType = type table [
 ScheduleAssigneeType = type table [
     id = text,
     schedule_id = text,
+    assignee_id = text,
     type = text,
     name = text
 ];
