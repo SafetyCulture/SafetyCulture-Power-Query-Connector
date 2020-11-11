@@ -137,6 +137,7 @@ ScheduleType = type table [
     status = text,
     timezone = text,
     can_late_submit = logical,
+    site_id = nullable text,
     template_id = nullable text,
     creator_user_id = nullable text
 ];
