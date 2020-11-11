@@ -123,15 +123,58 @@ SiteType = type table [
     organisation_id = text
 ];
 
+ScheduleType = type table [
+    id = text,
+    description = text,
+    recurrence = text,
+    duration = text,
+    modified_at = datetimezone,
+    from_date = datetimezone,
+    to_date = nullable datetimezone,
+    start_time_hour = number,
+    start_time_minute = number,
+    all_must_complete = logical,
+    status = text,
+    timezone = text,
+    can_late_submit = logical,
+    site_id = nullable text,
+    template_id = nullable text,
+    creator_user_id = nullable text
+];
 
-SchemaTable = #table({"Entity", "Type"}, {
-    {"users", UserType },
-    {"groups", GroupType },
-    {"group_users", GroupUserType },
-    {"templates", TemplateType },
-    {"inspections", InspectionType },
-    {"inspection_items", InspectionItemType },
-    {"sites", SiteType }
+ScheduleAssigneeType = type table [
+    id = text,
+    schedule_id = text,
+    assignee_id = text,
+    type = text,
+    name = text
+];
+
+ScheduleOccurenceType = type table [
+    id = text,
+    schedule_id = text,
+    occurrence_id = text,
+    user_id = text,
+    template_id = text,
+    miss_time = datetimezone,
+    occurrence_status = text,
+    assignee_status = text,
+    audit_id = nullable text,
+    completed_at = nullable datetimezone
+];
+
+
+SchemaTable = #table({"Entity", "Type", "Group"}, {
+    {"users", UserType, "" },
+    {"groups", GroupType, "" },
+    {"group_users", GroupUserType, "" },
+    {"templates", TemplateType, "" },
+    {"inspections", InspectionType, ""  },
+    {"inspection_items", InspectionItemType, ""  },
+    {"sites", SiteType, "" },
+    {"schedules", ScheduleType, "Schedule" },
+    {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
+    {"schedule_occurrences", ScheduleOccurenceType, "Schedule" }
 });
         
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -149,30 +192,47 @@ iAuditorType = type function (
         Documentation.Name = "iAuditor by SafetyCulture"
     ];
 
-iAuditorImpl = (orgName as text) as table => iAuditorNavTable(Uri.Combine(BaseUrl, "/feed/"));
+iAuditorImpl = (orgName as text) as table => iAuditorNavTable();
 
-iAuditorNavTable = (url as text) as table =>
+iAuditorNavTable = () as table =>
     let
-        entities = Table.SelectColumns(SchemaTable, {"Entity"}),
-        rename = Table.RenameColumns(entities, {{"Entity", "Name"}}),
+        groups = Table.Column(SchemaTable, "Group"),
+        distinctGroups = List.Distinct(groups),
+        nonEmptyGroups = List.Select(distinctGroups, each _ <> ""),
+        rename = Table.FromList(nonEmptyGroups, null, {"Name"}),
+        withData = Table.AddColumn(rename, "Data", each CreateNavTable([Name]), type table),
+        withItemKind = Table.AddColumn(withData, "ItemKind", each "Folder", type text),
+        withItemName = Table.AddColumn(withItemKind, "ItemName", each "Folder", type text),
+        withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each false, type logical),
+        withNoGroups = Table.Combine({withIsLeaf, CreateNavTable("")}),
+        navTable = Table.ToNavigationTable(withNoGroups, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+    in
+        navTable;
+
+CreateNavTable = (group as text) as table =>
+    let
+        entities = Table.SelectRows(SchemaTable, each [Group] = group),
+        entityNames = Table.SelectColumns(entities, {"Entity"}),
+        rename = Table.RenameColumns(entityNames, {{"Entity", "Name"}}),
         // Add Data as a calculated column
-        withData = Table.AddColumn(rename, "Data", each GetEntity(url, [Name]), type table),
+        withData = Table.AddColumn(rename, "Data", each GetEntity(Uri.Combine(BaseUrl, "/feed/"), [Name]), type table),
         // Add ItemKind and ItemName as fixed text values
         withItemKind = Table.AddColumn(withData, "ItemKind", each "Table", type text),
         withItemName = Table.AddColumn(withItemKind, "ItemName", each "Table", type text),
         // Indicate that the node should not be expandable
         withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each true, type logical),
         // Add function to the table
-        withFunction = Table.Combine({
-            withIsLeaf,
-            Table.FromRecords(
-                {
-                    [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                    [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
-                },
-                type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
-            )
-        }),
+        withFunction = if (group = "") then
+            Table.Combine({
+                withIsLeaf,
+                Table.FromRecords(
+                    {
+                        [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
+                        [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
+                    },
+                    type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
+                )
+            }) else withIsLeaf,
         // Generate the nav table
         navTable = Table.ToNavigationTable(withFunction, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
     in
@@ -196,6 +256,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "audit_id"}})
         else if (Type.Is(schema, SiteType)) then
             Table.RenameColumns(appliedSchema,{{"id", "site_id"}})
+        else if (Type.Is(schema, ScheduleType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "schedule_id"}})
         else
             appliedSchema;
 
@@ -297,8 +359,7 @@ GetAllPagesByNextLink = (url as text, optional schema as type) as table =>
 
 GetPage = (url as text, optional schema as type) as table =>
     let
-        limit = if (Type.Is(schema, InspectionItemType)) then 100 else 1000,
-        body = MakeRequest(url, limit),
+        body = MakeRequest(url),
         nextLink = GetNextLink(body[metadata]),
         bodyData = if (Record.HasFields(body, "data")) then body[data] else {},
 
@@ -331,7 +392,7 @@ GetNextLink = (response) as nullable text =>
         link;
 
 
-MakeRequest = (url as text, limit as number) =>
+MakeRequest = (url as text) =>
     let
         accessToken = Extension.CurrentCredential()[Key],
 
@@ -352,7 +413,7 @@ MakeRequest = (url as text, limit as number) =>
                         _url, 
                         [
                             Headers = headers,
-                            Query = [ limit = Number.ToText(limit) ],
+                            Query = [],
                             ManualCredentials = true,
                             ManualStatusHandling = failStatusCodes
                         ]
