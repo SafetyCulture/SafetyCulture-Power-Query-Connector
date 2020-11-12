@@ -18,11 +18,15 @@ shared iAuditor.UnitTest =
     ScheduleAssignees = ScheduleFolder{[Name="schedule_assignees"]}[Data],
     ScheduleOccurrences = ScheduleFolder{[Name="schedule_occurrences"]}[Data],
 
+    ActionsFolder = RootTable{[Name="Actions"]}[Data],
+    Actions = ActionsFolder{[Name="actions"]}[Data],
+    ActionAssignees = ActionsFolder{[Name="action_assignees"]}[Data],
+
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
    facts =
    {
-       Fact("Check that we have the correct number of entries in our nav table", 10, Table.RowCount(RootTable)),
+       Fact("Check that we have the correct number of entries in our nav table", 11, Table.RowCount(RootTable)),
 
        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
@@ -55,7 +59,13 @@ shared iAuditor.UnitTest =
         Fact("Schedule Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ScheduleAssignees))),
 
         Fact("We have Schedule Occurrences data?", true, not Table.IsEmpty(ScheduleOccurrences)),      
-        Fact("Schedule Occurrences has 10 columns", 10, List.Count(Table.ColumnNames(ScheduleOccurrences)))
+        Fact("Schedule Occurrences has 10 columns", 10, List.Count(Table.ColumnNames(ScheduleOccurrences))),
+
+        Fact("We have Actions data?", true, not Table.IsEmpty(Actions)),      
+        Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Actions))),
+
+        Fact("We have Action Assignees data?", true, not Table.IsEmpty(ActionAssignees)),      
+        Fact("Action Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ActionAssignees)))
    },
 
    report = Facts.Summarize(facts)
