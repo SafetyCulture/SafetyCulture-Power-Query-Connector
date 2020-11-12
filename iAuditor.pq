@@ -163,6 +163,33 @@ ScheduleOccurenceType = type table [
     completed_at = nullable datetimezone
 ];
 
+ActionType = type table [
+    id = text,
+    title = text,
+    site_id = nullable text,
+    description = nullable text,
+    priority = text,
+    status = text,
+    due_date = nullable datetimezone,
+    creator_user_id = nullable text,
+    creator_user_name = nullable text,
+    created_at = datetimezone,
+    modified_at = datetimezone,
+    template_id = nullable text,
+    audit_id = nullable text,
+    audit_title = nullable text,
+    audit_item_id = nullable text,
+    audit_item_label = nullable text
+];
+
+ActionAssigneeType = type table [
+    id = text,
+    action_id = text,
+    assignee_id = text,
+    name = nullable text,
+    type = text
+];
+
 
 SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"users", UserType, "" },
@@ -174,7 +201,9 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"sites", SiteType, "" },
     {"schedules", ScheduleType, "Schedule" },
     {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
-    {"schedule_occurrences", ScheduleOccurenceType, "Schedule" }
+    {"schedule_occurrences", ScheduleOccurenceType, "Schedule" },
+    {"actions", ActionType, "Actions" },
+    {"action_assignees", ActionAssigneeType, "Actions" }
 });
         
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -258,6 +287,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "site_id"}})
         else if (Type.Is(schema, ScheduleType)) then
             Table.RenameColumns(appliedSchema,{{"id", "schedule_id"}})
+        else if (Type.Is(schema, ActionType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "action_id"}})
         else
             appliedSchema;
 
