@@ -1,7 +1,6 @@
 ﻿$version = "1.0-beta5"
 $rootFolder = Get-Location
 $buildFolder = "$rootFolder\build"
-Remove-Item $buildFolder -Recurse
 New-Item -Path @rootFolder -Name "build" -ItemType "directory"
 Copy-Item "$rootFolder\*.png","$rootFolder\*.pqm","$rootFolder\*.resx" -Destination "$buildFolder"
 
