@@ -17,17 +17,18 @@ jobs:
         CERT_PASS: ${{ secrets.CERT_PASS }}
         TEST_SECRET: ${{ secrets.TEST_SECRET }}
       run: .\build.ps1
-    - name: Set output
-      id: vars
-      run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      shell: bash
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.vars.outputs.tag }}
-        release_name: ${{ steps.vars.outputs.tag }}
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: ${{ steps.get_version.outputs.VERSION }}
         draft: true
         prerelease: true
     - name: Upload Signed Connector
