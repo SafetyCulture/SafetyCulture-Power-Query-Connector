@@ -1,28 +1,33 @@
 name: Release-Connector
 
-on: push
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
-  build:
-
+  release:
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v2
-    - shell: pwsh
+    - name: Build connector
+      shell: pwsh
       env:
         CERT_DATA: ${{ secrets.CERT_DATA }}
         CERT_PASS: ${{ secrets.CERT_PASS }}
         TEST_SECRET: ${{ secrets.TEST_SECRET }}
       run: .\build.ps1
+    - name: Set output
+      id: vars
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ steps.vars.outputs.tag }}
+        release_name: ${{ steps.vars.outputs.tag }}
         draft: true
         prerelease: true
     - name: Upload Signed Connector
