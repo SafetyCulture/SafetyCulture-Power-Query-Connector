@@ -10,17 +10,17 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      shell: bash
     - name: Build connector
       shell: pwsh
       env:
         CERT_DATA: ${{ secrets.CERT_DATA }}
         CERT_PASS: ${{ secrets.CERT_PASS }}
-        TEST_SECRET: ${{ secrets.TEST_SECRET }}
+        CUR_VER: ${{ steps.get_version.outputs.VERSION }}
       run: .\build.ps1
-    - name: Get the version
-      id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-      shell: bash
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1

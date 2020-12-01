@@ -1,11 +1,10 @@
-﻿$version = "1.0-beta5"
-$rootFolder = Get-Location
+﻿$rootFolder = Get-Location
 $buildFolder = "$rootFolder\build"
 New-Item -Path @rootFolder -Name "build" -ItemType "directory"
 Copy-Item "$rootFolder\*.png","$rootFolder\*.pqm","$rootFolder\*.resx" -Destination "$buildFolder"
 
 (Get-Content "$rootFolder\iAuditor.pq") `
-    -replace '(\"sc-integration-version\"\s=\s).+\"', "`$1`"$version`"" |
+    -replace '(\"sc-integration-version\"\s=\s).+\"', "`$1`"$ENV:CUR_VER`"" |
   Out-File "$buildFolder\iAuditor.m"
 
 $compress = @{
