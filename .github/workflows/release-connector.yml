@@ -25,7 +25,7 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: true
         prerelease: true
-    - name: Upload Release Asset
+    - name: Upload Signed Connector
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
       env:
@@ -34,4 +34,24 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./build/iAuditorSigned.pqx
         asset_name: iAuditorSigned.pqx
-        asset_content_type: application/zip
+        asset_content_type: application/octet-stream
+    - name: Upload Thumbprint
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Thumbprint.txt
+        asset_name: Thumbprint.txt
+        asset_content_type: text/plain
+    - name: Upload Sample Report
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Sample Report.pbit
+        asset_name: Sample Report.pbit
+        asset_content_type: application/octet-stream
