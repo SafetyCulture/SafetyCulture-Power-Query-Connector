@@ -1,0 +1,14 @@
+name: Release-Connector
+
+on: push
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run build script
+      run: .\build.ps1
+        shell: powershell
