@@ -16,6 +16,9 @@ $compress = @{
 Compress-Archive @compress
 Rename-Item -Path "$buildFolder\iAuditor.zip" -NewName "iAuditor.mez"
 
+echo "testing getting env values"
+echo "$ENV:TEST_SECRET"
+
 $certFile = "$rootFolder\cert.pfx"
 [IO.File]::WriteAllBytes("$certFile", [Convert]::FromBase64String($ENV:CERT_DATA))
 
