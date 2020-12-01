@@ -9,6 +9,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run build script
+    - shell: pwsh
+      env:
+        CERT_DATA: ${{ secrets.CERT_DATA }}
+        CERT_PASS: ${{ secrets.CERT_PASS }}
+        TEST_SECRET: ${{ secrets.TEST_SECRET }}
       run: .\build.ps1
-      shell: pwsh
+      
