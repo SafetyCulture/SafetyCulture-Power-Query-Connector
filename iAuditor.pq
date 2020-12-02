@@ -150,7 +150,7 @@ ScheduleAssigneeType = type table [
     name = text
 ];
 
-ScheduleOccurenceType = type table [
+ScheduleOccurrenceType = type table [
     id = text,
     schedule_id = text,
     occurrence_id = text,
@@ -201,7 +201,7 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"sites", SiteType, "" },
     {"schedules", ScheduleType, "Schedule" },
     {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
-    {"schedule_occurrences", ScheduleOccurenceType, "Schedule" },
+    {"schedule_occurrences", ScheduleOccurrenceType, "Schedule" },
     {"actions", ActionType, "Actions" },
     {"action_assignees", ActionAssigneeType, "Actions" }
 });
