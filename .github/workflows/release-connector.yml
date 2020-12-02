@@ -21,7 +21,7 @@ jobs:
         CERT_PASS: ${{ secrets.CERT_PASS }}
         CUR_VER: ${{ steps.get_version.outputs.VERSION }}
       run: .\build.ps1
-    - name: Create Release
+    - name: Create release
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -31,7 +31,7 @@ jobs:
         release_name: ${{ steps.get_version.outputs.VERSION }}
         draft: true
         prerelease: true
-    - name: Upload Signed Connector
+    - name: Upload signed connector
       id: upload-signed-connector
       uses: actions/upload-release-asset@v1
       env:
@@ -41,7 +41,7 @@ jobs:
         asset_path: ./build/iAuditorSigned.pqx
         asset_name: iAuditorSigned.pqx
         asset_content_type: application/octet-stream
-    - name: Upload Thumbprint
+    - name: Upload thumbprint
       id: upload-thumbprint
       uses: actions/upload-release-asset@v1
       env:
@@ -51,7 +51,7 @@ jobs:
         asset_path: ./Thumbprint.txt
         asset_name: Thumbprint.txt
         asset_content_type: text/plain
-    - name: Upload Sample Report
+    - name: Upload sample report
       id: upload-sample-report
       uses: actions/upload-release-asset@v1
       env:
