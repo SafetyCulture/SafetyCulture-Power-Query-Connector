@@ -21,11 +21,10 @@ jobs:
         CERT_PASS: ${{ secrets.CERT_PASS }}
         CUR_VER: ${{ steps.get_version.outputs.VERSION }}
       run: .\build.ps1
-    - name: Generate changelog
-      id: generate_changelog
-      uses: heinrichreimer/github-changelog-generator-action@v2.1.1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get changes
+      id: get_changes
+      run: echo ::set-output name=changes::$(git log --oneline $(git describe --tags --abbrev=0 @^)..@)
+      shell: bash
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -37,7 +36,7 @@ jobs:
         body: |
           Thumbprint: 89F5E98CC7432AFA23D784DFE496A67D435767B5
           ## Changes in this release:
-          ${{ steps.generate_changelog.outputs.changelog }}
+          ${{ steps.get_changes.outputs.changes }}
         draft: true
         prerelease: true
     - name: Upload signed connector
