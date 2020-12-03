@@ -10,6 +10,8 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
@@ -21,6 +23,10 @@ jobs:
         CERT_PASS: ${{ secrets.CERT_PASS }}
         CUR_VER: ${{ steps.get_version.outputs.VERSION }}
       run: .\build.ps1
+    - name: Get changes
+      id: get_changes
+      run: echo ::set-output name=changes::$(git log --oneline v1.0-beta3..v1.0-beta4)
+      shell: bash
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -31,6 +37,8 @@ jobs:
         release_name: ${{ steps.get_version.outputs.VERSION }}
         body: |
           Thumbprint: `89F5E98CC7432AFA23D784DFE496A67D435767B5`
+          ## Changes in this release:
+          ${{ steps.get_changes.outputs.changes }}
         draft: true
         prerelease: true
     - name: Upload signed connector
@@ -43,6 +51,16 @@ jobs:
         asset_path: ./build/iAuditorSigned.pqx
         asset_name: iAuditorSigned.pqx
         asset_content_type: application/octet-stream
+    - name: Upload thumbprint
+      id: upload-thumbprint
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Thumbprint.txt
+        asset_name: Thumbprint.txt
+        asset_content_type: text/plain
     - name: Upload sample report
       id: upload-sample-report
       uses: actions/upload-release-asset@v1
