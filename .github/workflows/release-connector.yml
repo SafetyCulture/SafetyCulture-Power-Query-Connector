@@ -23,7 +23,7 @@ jobs:
       run: .\build.ps1
     - name: Get changes
       id: get_changes
-      run: echo ::set-output name=changes::$(git log --oneline $(git tag --sort version:refname | tail -n 2 | head -n 1)..$(git tag --sort version:refname | tail -n 1))
+      run: echo ::set-output name=changes::$(git describe --tags --abbrev=0 @^)
       shell: bash
     - name: Create release
       id: create_release
