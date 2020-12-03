@@ -25,7 +25,7 @@ jobs:
       run: .\build.ps1
     - name: Get changes
       id: get_changes
-      run: echo ::set-output name=changes::$(git --no-pager log --oneline $(git describe --tags --abbrev=0 @^)..@ | sed 's/$/\\/')
+      run: echo ::set-output name=changes::$(git --no-pager log --oneline $(git describe --tags --abbrev=0 @^)..@ | sed 's/$/%0A\\/')
       shell: bash
     - name: Create release
       id: create_release
