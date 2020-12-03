@@ -23,7 +23,7 @@ jobs:
       run: .\build.ps1
     - name: Get changes
       id: get_changes
-      run: echo ::set-output name=changes::$(git log --oneline $(git describe --tags --abbrev=0 @^)..@)
+      run: echo ::set-output name=changes::$(git log --oneline)
       shell: bash
     - name: Create release
       id: create_release
