@@ -37,7 +37,7 @@ jobs:
         release_name: ${{ steps.get_version.outputs.VERSION }}
         body: |
           Thumbprint: `89F5E98CC7432AFA23D784DFE496A67D435767B5`
-          ## Changes in this release:
+          ## Changelog
           ${{ steps.get_changes.outputs.changes }}
         draft: true
         prerelease: true
