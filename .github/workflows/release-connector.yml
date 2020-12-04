@@ -1,0 +1,63 @@
+name: Release-Connector
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      shell: bash
+    - name: Build connector
+      shell: pwsh
+      env:
+        CERT_DATA: ${{ secrets.CERT_DATA }}
+        CERT_PASS: ${{ secrets.CERT_PASS }}
+        CUR_VER: ${{ steps.get_version.outputs.VERSION }}
+      run: .\build.ps1
+    - name: Get changes
+      id: get_changes
+      run: echo ::set-output name=changes::$(git --no-pager log --oneline $(git describe --tags --abbrev=0 @^)..@ | sed 's/$/%0A/')
+      shell: bash
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          Thumbprint: `89F5E98CC7432AFA23D784DFE496A67D435767B5`
+          ## Changelog
+          ${{ steps.get_changes.outputs.changes }}
+        draft: true
+        prerelease: true
+    - name: Upload signed connector
+      id: upload-signed-connector
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./build/iAuditorSigned.pqx
+        asset_name: iAuditorSigned.pqx
+        asset_content_type: application/octet-stream
+    - name: Upload sample report
+      id: upload-sample-report
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Sample Report.pbit
+        asset_name: Sample Report.pbit
+        asset_content_type: application/octet-stream
