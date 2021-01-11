@@ -79,13 +79,14 @@ InspectionType = type table [
     created_at = datetimezone,
     modified_at = datetimezone,
     latitude = nullable number,
-    longitude = text,
+    longitude = nullable text,
     document_no = nullable text,
     prepared_by = nullable text,
     location = nullable text,
     conducted_on = nullable datetimezone,
     personnel = nullable text,
-    client_site = nullable text
+    client_site = nullable text,
+    web_report_link = nullable text
 ];
 
 InspectionItemType = type table [
