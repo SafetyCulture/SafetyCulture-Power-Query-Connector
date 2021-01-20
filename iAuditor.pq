@@ -93,6 +93,7 @@ InspectionItemType = type table [
     id = text,
     item_id = text,
     audit_id = text,
+    item_index = number,
     template_id = text,
     parent_id = nullable text,
     created_at = datetimezone,
