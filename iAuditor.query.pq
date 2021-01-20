@@ -26,7 +26,7 @@ shared iAuditor.UnitTest =
        Fact("Check that we have the correct number of entries in our nav table", 11, Table.RowCount(RootTable)),
 
        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
-       Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(Inspections))),
+       Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(Inspections))),
 
         Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),
         Fact("Inspection Items has 25 columns", 25, List.Count(Table.ColumnNames(InspectionItems))),
@@ -44,13 +44,13 @@ shared iAuditor.UnitTest =
         Fact("Templates has 10 columns", 10, List.Count(Table.ColumnNames(Templates))),
 
         Fact("We have Template Permissions data?", true, not Table.IsEmpty(TemplatePermissions)),
-        Fact("Template Permissions has 5 columns", 5, List.Count(Table.ColumnNames(Templates))),
+        Fact("Template Permissions has 5 columns", 5, List.Count(Table.ColumnNames(TemplatePermissions))),
 
         Fact("We have Sites data?", true, not Table.IsEmpty(Sites)),
         Fact("Templates has 4 columns", 4, List.Count(Table.ColumnNames(Sites))),
 
         Fact("We have GetInspections data?", true, not Table.IsEmpty(GetInspections)),
-        Fact("Inspections has 26 columns", 26, List.Count(Table.ColumnNames(GetInspections))),
+        Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(GetInspections))),
 
         Fact("We have Schedules data?", true, not Table.IsEmpty(Schedules)),
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Schedules))),
