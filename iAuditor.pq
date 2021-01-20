@@ -59,6 +59,14 @@ TemplateType = type table [
     author_id = nullable text
 ];
 
+TemplatePermissionType = type table [
+    id = text,
+    template_id = text,
+    permission = text,
+    assignee_type = text,
+    assignee_id = text
+];
+
 InspectionType = type table [
     id = text,
     name = text,
@@ -170,8 +178,9 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"groups", GroupType, "" },
     {"group_users", GroupUserType, "" },
     {"templates", TemplateType, "" },
-    {"inspections", InspectionType, ""  },
-    {"inspection_items", InspectionItemType, ""  },
+    {"template_permissions", TemplatePermissionType, "" },
+    {"inspections", InspectionType, "" },
+    {"inspection_items", InspectionItemType, "" },
     {"sites", SiteType, "" },
     {"schedules", ScheduleType, "Schedule" },
     {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
