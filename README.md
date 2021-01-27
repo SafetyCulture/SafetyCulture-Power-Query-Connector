@@ -8,6 +8,21 @@ To learn how to install and use this connector please visit our [support page](h
 ## Sample report
 A Power BI report template has been included with [each release](https://github.com/SafetyCulture/iAuditor-Power-Query-Connector/releases). After installing the connector you can download and open this report in Power BI desktop. You will be prompted to enter an API key which you can generate by visiting [API Tokens](https://app.safetyculture.com/account/api-tokens) page in SafetyCulture website.
 
+# Frequently Asked Questions (FAQ)
+
+## What is the purpose of the "Org Name"?
+This is the name to distinguish between your organisations locally, should you choose to consume data from multiple organisations inside iAuditor. This information is never transmitted to our servers and is only stored locally on your machine. This name can be anything you want, as long as it is unique.
+
+## Can the data be filtered when loading data for the first time?
+Yes, `inspections` and `inspection_items` can be filtered using the provided function `GetInspections` and `GetInspectionItems` respectively. These can be found in the [nav table](
+https://github.com/SafetyCulture/iAuditor-Power-Query-Connector/blob/master/iAuditor.pq#L274-L286)
+
+## What are some best practices to follow when loading data using this connector?
+We have a sample report provided which includes a few common use cases of the data present. The report can be found [here](https://github.com/SafetyCulture/iAuditor-Power-Query-Connector/blob/master/Sample%20Report.pbit)
+
+## We are seeing many tables with no records. i.e. `schedule_assigneeers`, `groups` and `group_user`. Is this expected?
+`schedule_assignees` may be a result of that organisation not having any schedules. `groups`, `group_users` and `users` will require the Group Management and User Management permissions in order to load. Please refer to the following [support page](https://help.safetyculture.com/en_us/1514571103-SkUXQp9Hv) for more information.
+
 # Development
 ## Development requirements
 - Microsoft Windows
