@@ -15,7 +15,7 @@ The “Org Name” helps distinguish between organizations locally. This can be 
 You can label the “Org Name” freely, as long as it's unique.
 
 ## Can the data be filtered when loading data for the first time?
-Yes, the “inspections” and “inspection_items” data sets can be filtered using the provided functions of “GetInspections” and “GetInspectionItems”, respectively. Both can be found in the [nav table.](./iAuditor.pq#L274-L286)
+Yes, the “inspections” and “inspection_items” data sets can be filtered using the provided functions of “GetInspections” and “GetInspectionItems”, respectively.
 
 ## What are some best practices to follow when loading data using this connector?
 
