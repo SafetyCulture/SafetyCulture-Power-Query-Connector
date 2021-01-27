@@ -19,8 +19,10 @@ Yes, the “inspections” and “inspection_items” data sets can be filtered 
 
 ## What are some best practices to follow when loading data using this connector?
 
-We offer a [sample report](./Sample%20Report.pbit) that you can download to identify common use cases of iAuditor data sets.
+We have a sample report provided which includes a few common use cases of the data present. The report can be found [here](./Sample%20Report.pbit)
 
+## Some tables have no data in them i.e. `schedules`, `schedule_assignees`, `groups` and `group_users`. Is this expected?
+`schedule_assignees` may be a result of that organisation not having any schedules. `groups`, `group_users` and `users` will require the Group Management and User Management permissions in order to load. Please refer to the following [support page](https://help.safetyculture.com/en_us/1514571103-SkUXQp9Hv) for more information.
 
 ## Why do I see tables with no records, such as “schedule_assignee” and “groups”?
 This can result from the data simply not existing or that you don’t have the right permission. For example, an empty “schedule_assignees” table could mean that the organization doesn’t actually have any schedules created. Empty “groups” and “users” tables could mean that you don’t have the “Group Management” and “User Management” permissions in the organization. Learn how to [assign permissions](https://help.safetyculture.com/en_us/1514571103-SkUXQp9Hv) as an administrator.
