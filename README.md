@@ -19,7 +19,7 @@ Yes, `inspections` and `inspection_items` can be filtered using the provided fun
 ## What are some best practices to follow when loading data using this connector?
 We have a sample report provided which includes a few common use cases of the data present. The report can be found [here](./Sample%20Report.pbit)
 
-## We are seeing many tables with no records. i.e. `schedule_assigneeers`, `groups` and `group_user`. Is this expected?
+## Some tables have no data in them i.e. `schedules`, `schedule_assignees`, `groups` and `group_users`. Is this expected?
 `schedule_assignees` may be a result of that organisation not having any schedules. `groups`, `group_users` and `users` will require the Group Management and User Management permissions in order to load. Please refer to the following [support page](https://help.safetyculture.com/en_us/1514571103-SkUXQp9Hv) for more information.
 
 # Development
