@@ -173,6 +173,33 @@ ScheduleOccurrenceType = type table [
     completed_at = nullable datetimezone
 ];
 
+ActionType = type table [
+    id = text,
+    title = text,
+    site_id = nullable text,
+    description = nullable text,
+    priority = text,
+    status = text,
+    due_date = nullable datetimezone,
+    creator_user_id = nullable text,
+    creator_user_name = nullable text,
+    created_at = datetimezone,
+    modified_at = datetimezone,
+    template_id = nullable text,
+    audit_id = nullable text,
+    audit_title = nullable text,
+    audit_item_id = nullable text,
+    audit_item_label = nullable text
+];
+
+ActionAssigneeType = type table [
+    id = text,
+    action_id = text,
+    assignee_id = text,
+    name = nullable text,
+    type = text
+];
+
 SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"users", UserType, "" },
     {"groups", GroupType, "" },
@@ -184,7 +211,9 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"sites", SiteType, "" },
     {"schedules", ScheduleType, "Schedule" },
     {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
-    {"schedule_occurrences", ScheduleOccurrenceType, "Schedule" }
+    {"schedule_occurrences", ScheduleOccurrenceType, "Schedule" },
+    {"actions", ActionType, "Actions" },
+    {"action_assignees", ActionAssigneeType, "Actions" }
 });
 
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -248,7 +277,7 @@ CreateNavTable = (group as text) as table =>
     in
         navTable;
 
-GetEntity = (url as text, entity as text, optional query as record) as table => 
+GetEntity = (url as text, entity as text, optional query as record) as table =>
     let
         withQuery = if (query <> null) then entity & "?" & Uri.BuildQueryString(query) else entity,
         fullUrl = Uri.Combine(url, withQuery),
@@ -268,6 +297,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "site_id"}})
         else if (Type.Is(schema, ScheduleType)) then
             Table.RenameColumns(appliedSchema,{{"id", "schedule_id"}})
+        else if (Type.Is(schema, ActionType)) then
+            Table.RenameColumns(appliedSchema,{{"id", "action_id"}})
         else
             appliedSchema;
 
@@ -357,7 +388,7 @@ GetInspectionItemsType = type function (
 // After every page, we check the "NextLink" record on the metadata of the previous request.
 // Table.GenerateByPage will keep asking for more pages until we return null.
 GetAllPagesByNextLink = (url as text, optional schema as type) as table =>
-    Table.GenerateByPage((previous) => 
+    Table.GenerateByPage((previous) =>
         let
             // if previous is null, then this is our first page of data
             nextLink = if (previous = null) then url else Value.Metadata(previous)[NextLink]?,
@@ -393,8 +424,8 @@ GetPage = (url as text, optional schema as type) as table =>
 
 // In this implementation, 'response' will be the parsed metadata of the response.
 // We look for the 'next_page' field and simply return null if it doesn't exist.
-GetNextLink = (response) as nullable text => 
-    let 
+GetNextLink = (response) as nullable text =>
+    let
         nextPageLink = Record.FieldOrDefault(response, "next_page"),
 
         link = if nextPageLink <> null then Uri.Combine(BaseUrl, nextPageLink) else null
@@ -420,14 +451,14 @@ MakeRequest = (url as text) =>
                 let
                      _url = Diagnostics.LogValue("Accessing URL", url),
                     result = Web.Contents(
-                        _url, 
+                        _url,
                         [
                             Headers = headers,
                             Query = [],
                             ManualCredentials = true,
                             ManualStatusHandling = failStatusCodes
                         ]
-                    ), 
+                    ),
                     buffered = Binary.Buffer(result),
                     status = Value.Metadata(result)[Response.Status],
                     _status = Diagnostics.LogValue("Request finished with status", status),
@@ -441,9 +472,9 @@ MakeRequest = (url as text) =>
     in
         request;
 
-// 
+//
 // Load common library functions
-// 
+//
 // TEMPORARY WORKAROUND until we're able to reference other M modules
 Extension.LoadFunction = (name as text) =>
     let
