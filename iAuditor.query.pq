@@ -32,19 +32,19 @@ shared iAuditor.UnitTest =
        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
        Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(Inspections))),
 
-        Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),      
+        Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),
         Fact("Inspection Items has 25 columns", 25, List.Count(Table.ColumnNames(InspectionItems))),
 
-        Fact("We have Users data?", true, not Table.IsEmpty(Users)),      
+        Fact("We have Users data?", true, not Table.IsEmpty(Users)),
         Fact("Users has 6 columns", 6, List.Count(Table.ColumnNames(Users))),
 
-        Fact("We have Groups data?", true, not Table.IsEmpty(Groups)),      
+        Fact("We have Groups data?", true, not Table.IsEmpty(Groups)),
         Fact("Groups has 2 columns", 2, List.Count(Table.ColumnNames(Groups))),
 
-        Fact("We have Group Users data?", true, not Table.IsEmpty(GroupUsers)),      
+        Fact("We have Group Users data?", true, not Table.IsEmpty(GroupUsers)),
         Fact("Group Users has 2 columns", 2, List.Count(Table.ColumnNames(GroupUsers))),
 
-        Fact("We have Templates data?", true, not Table.IsEmpty(Templates)),      
+        Fact("We have Templates data?", true, not Table.IsEmpty(Templates)),
         Fact("Templates has 10 columns", 10, List.Count(Table.ColumnNames(Templates))),
 
         Fact("We have Template Permissions data?", true, not Table.IsEmpty(TemplatePermissions)),
@@ -56,26 +56,26 @@ shared iAuditor.UnitTest =
         Fact("We have GetInspections data?", true, not Table.IsEmpty(GetInspections)),
         Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(GetInspections))),
 
-        Fact("We have Schedules data?", true, not Table.IsEmpty(Schedules)),      
+        Fact("We have Schedules data?", true, not Table.IsEmpty(Schedules)),
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Schedules))),
 
-        Fact("We have Schedule Assignees data?", true, not Table.IsEmpty(ScheduleAssignees)),      
+        Fact("We have Schedule Assignees data?", true, not Table.IsEmpty(ScheduleAssignees)),
         Fact("Schedule Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ScheduleAssignees))),
 
-        Fact("We have Schedule Occurrences data?", true, not Table.IsEmpty(ScheduleOccurrences)),      
+        Fact("We have Schedule Occurrences data?", true, not Table.IsEmpty(ScheduleOccurrences)),
         Fact("Schedule Occurrences has 10 columns", 10, List.Count(Table.ColumnNames(ScheduleOccurrences))),
 
-        Fact("We have Actions data?", true, not Table.IsEmpty(Actions)),      
+        Fact("We have Actions data?", true, not Table.IsEmpty(Actions)),
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Actions))),
 
-        Fact("We have Action Assignees data?", true, not Table.IsEmpty(ActionAssignees)),      
+        Fact("We have Action Assignees data?", true, not Table.IsEmpty(ActionAssignees)),
         Fact("Action Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ActionAssignees)))
    },
 
    report = Facts.Summarize(facts)
 ][report];
 
-/// COMMON UNIT TESTING CODE 
+/// COMMON UNIT TESTING CODE
 Fact = (_subject as text, _expected, _actual) as record =>
 [   expected = try _expected,
     safeExpected = if expected[HasError] then "Expected : "& @ValueToText(expected[Error]) else expected[Value],
@@ -123,22 +123,22 @@ ValueToText = (value, optional depth) =>
                                             charDigit = (c as number) => c>= 48 and c <= 57
                                         in
                                             try
-                                                charAlpha(Character.ToNumber(Text.At(x,0))) 
+                                                charAlpha(Character.ToNumber(Text.At(x,0)))
                                                 and
                                                     List.MatchesAll(
                                                         Text.ToList(x),
                                                         (c)=> let num = Character.ToNumber(c) in charAlpha(num) or charDigit(num)
                                                     )
-                                                and not 
+                                                and not
                                                     List.MatchesAny( keywords, (li)=> li=x )
-                                            otherwise 
+                                            otherwise
                                                 false,
-    
+
         Serialize.Binary =      (x) => "#binary(" & Serialize(Binary.ToList(x)) & ") ",
 
-        Serialize.Date =        (x) => "#date(" & 
-                                       Text.From(Date.Year(x))  & ", " & 
-                                       Text.From(Date.Month(x)) & ", " & 
+        Serialize.Date =        (x) => "#date(" &
+                                       Text.From(Date.Year(x))  & ", " &
+                                       Text.From(Date.Month(x)) & ", " &
                                        Text.From(Date.Day(x))   & ") ",
 
         Serialize.Datetime =    (x) => "#datetime(" &
@@ -149,10 +149,10 @@ ValueToText = (value, optional depth) =>
                                        Text.From(Time.Minute(DateTime.Time(x)))  & ", " &
                                        Text.From(Time.Second(DateTime.Time(x)))  & ") ",
 
-        Serialize.Datetimezone =(x) => let 
-                                          dtz = DateTimeZone.ToRecord(x) 
+        Serialize.Datetimezone =(x) => let
+                                          dtz = DateTimeZone.ToRecord(x)
                                        in
-                                          "#datetimezone(" & 
+                                          "#datetimezone(" &
                                           Text.From(dtz[Year])        & ", " &
                                           Text.From(dtz[Month])       & ", " &
                                           Text.From(dtz[Day])         & ", " &
@@ -178,7 +178,7 @@ ValueToText = (value, optional depth) =>
                                        _serialize_function_return_type(Value.Type(x)) &
                                        " => (...) ",
 
-        Serialize.List =        (x) => "{" & 
+        Serialize.List =        (x) => "{" &
                                        List.Accumulate(x, "", (seed,item) => if seed="" then Serialize(item) else seed & ", " & Serialize(item)) &
                                        "} ",
 
@@ -186,8 +186,8 @@ ValueToText = (value, optional depth) =>
 
         Serialize.Null =        (x) => "null",
 
-        Serialize.Number =      (x) => 
-                                    let Text.From = (i as number) as text => 
+        Serialize.Number =      (x) =>
+                                    let Text.From = (i as number) as text =>
                                         if Number.IsNaN(i) then "#nan" else
                                         if i=Number.PositiveInfinity then "#infinity" else
                                         if i=Number.NegativeInfinity then "-#infinity" else
@@ -197,9 +197,9 @@ ValueToText = (value, optional depth) =>
 
         Serialize.Record =      (x) => "[ " &
                                        List.Accumulate(
-                                            Record.FieldNames(x), 
-                                            "", 
-                                            (seed,item) => 
+                                            Record.FieldNames(x),
+                                            "",
+                                            (seed,item) =>
                                                 (if seed="" then Serialize.Identifier(item) else seed & ", " & Serialize.Identifier(item)) & " = " & Serialize(Record.Field(x, item))
                                        ) &
                                        " ] ",
@@ -209,47 +209,47 @@ ValueToText = (value, optional depth) =>
                                         ", " &
                                         Serialize(Table.ToRows(x)) &
                                         ") ",
-                                    
-        Serialize.Text =        (x) => """" & 
-                                       _serialize_text_content(x) & 
+
+        Serialize.Text =        (x) => """" &
+                                       _serialize_text_content(x) &
                                        """",
 
-        _serialize_text_content =  (x) => let 
+        _serialize_text_content =  (x) => let
                                             escapeText = (n as number) as text => "#(#)(" & Text.PadStart(Number.ToText(n, "X", "en-US"), 4, "0") & ")"
                                         in
                                         List.Accumulate(
                                            List.Transform(
                                                Text.ToList(x),
-                                               (c) => let n=Character.ToNumber(c) in 
+                                               (c) => let n=Character.ToNumber(c) in
                                                         if n = 9   then "#(#)(tab)" else
                                                         if n = 10  then "#(#)(lf)"  else
                                                         if n = 13  then "#(#)(cr)"  else
                                                         if n = 34  then """"""      else
                                                         if n = 35  then "#(#)(#)"   else
-                                                        if n < 32  then escapeText(n) else 
-                                                        if n < 127 then Character.FromNumber(n) else 
-                                                        escapeText(n) 
+                                                        if n < 32  then escapeText(n) else
+                                                        if n < 127 then Character.FromNumber(n) else
+                                                        escapeText(n)
                                             ),
                                             "",
                                             (s,i)=>s&i
                                         ),
-        
-        Serialize.Identifier =   (x) => 
-                                        if _canBeIdentifier(x) then 
-                                            x 
-                                        else 
+
+        Serialize.Identifier =   (x) =>
+                                        if _canBeIdentifier(x) then
+                                            x
+                                        else
                                             "#""" &
                                             _serialize_text_content(x) &
                                             """",
 
         Serialize.Time =        (x) => "#time(" &
-                                       Text.From(Time.Hour(x))   & ", " & 
-                                       Text.From(Time.Minute(x)) & ", " & 
+                                       Text.From(Time.Hour(x))   & ", " &
+                                       Text.From(Time.Minute(x)) & ", " &
                                        Text.From(Time.Second(x)) & ") ",
-                                
+
         Serialize.Type =        (x) => "type " & _serialize_typename(x),
-                                    
-                             
+
+
         _serialize_typename =    (x, optional funtype as logical) =>                        /* Optional parameter: Is this being used as part of a function signature? */
                                     let
                                         isFunctionType = (x as type) => try if Type.FunctionReturn(x) is type then true else false otherwise false,
@@ -257,17 +257,17 @@ ValueToText = (value, optional depth) =>
                                         isRecordType = (x as type) => try if Type.ClosedRecord(x) is type then true else false otherwise false,
                                         isListType = (x as type) => try if Type.ListItem(x) is type then true else false otherwise false
                                     in
-                                
+
                                         if funtype=null and isTableType(x) then _serialize_table_type(x) else
                                         if funtype=null and isListType(x) then "{ " & @_serialize_typename( Type.ListItem(x) ) & " }" else
                                         if funtype=null and isFunctionType(x) then "function " & _serialize_function_type(x) else
                                         if funtype=null and isRecordType(x) then _serialize_record_type(x) else
-                                    
+
                                         if x = type any then "any" else
                                         let base = Type.NonNullable(x) in
-                                          (if Type.IsNullable(x) then "nullable " else "") &       
-                                          (if base = type anynonnull then "anynonnull" else                
-                                          if base = type binary then "binary" else                
+                                          (if Type.IsNullable(x) then "nullable " else "") &
+                                          (if base = type anynonnull then "anynonnull" else
+                                          if base = type binary then "binary" else
                                           if base = type date   then "date"   else
                                           if base = type datetime then "datetime" else
                                           if base = type datetimezone then "datetimezone" else
@@ -276,24 +276,24 @@ ValueToText = (value, optional depth) =>
                                           if base = type none then "none" else
                                           if base = type null then "null" else
                                           if base = type number then "number" else
-                                          if base = type text then "text" else 
-                                          if base = type time then "time" else 
-                                          if base = type type then "type" else 
-                                      
+                                          if base = type text then "text" else
+                                          if base = type time then "time" else
+                                          if base = type type then "type" else
+
                                           /* Abstract types: */
                                           if base = type function then "function" else
                                           if base = type table then "table" else
                                           if base = type record then "record" else
                                           if base = type list then "list" else
-                                      
+
                                           "any /*Actually unknown type*/"),
 
-        _serialize_table_type =     (x) => 
-                                           let 
+        _serialize_table_type =     (x) =>
+                                           let
                                              schema = Type.TableSchema(x)
                                            in
                                              "table " &
-                                             (if Table.IsEmpty(schema) then "" else 
+                                             (if Table.IsEmpty(schema) then "" else
                                                  "[" & List.Accumulate(
                                                     List.Transform(
                                                         Table.ToRecords(Table.Sort(schema,"Position")),
@@ -302,18 +302,18 @@ ValueToText = (value, optional depth) =>
                                                     (seed,item) => (if seed="" then item else seed & ", " & item )
                                                 ) & "] " ),
 
-        _serialize_record_type =    (x) => 
+        _serialize_record_type =    (x) =>
                                             let flds = Type.RecordFields(x)
                                             in
                                                 if Record.FieldCount(flds)=0 then "record" else
                                                     "[" & List.Accumulate(
                                                         Record.FieldNames(flds),
                                                         "",
-                                                        (seed,item) => 
+                                                        (seed,item) =>
                                                             seed &
                                                             (if seed<>"" then ", " else "") &
                                                             (Serialize.Identifier(item) & "=" & _serialize_typename(Record.Field(flds,item)[Type]) )
-                                                    ) & 
+                                                    ) &
                                                     (if Type.IsOpenRecord(x) then ",..." else "") &
                                                     "]",
 
@@ -322,15 +322,15 @@ ValueToText = (value, optional depth) =>
                                               Type.FunctionRequiredParameters(x) ) &
                                             " as " &
                                             _serialize_function_return_type(x),
-    
-        _serialize_function_param_type = (t,n) => 
+
+        _serialize_function_param_type = (t,n) =>
                                 let
                                     funsig = Table.ToRecords(
                                         Table.TransformColumns(
                                             Table.AddIndexColumn( Record.ToTable( t ), "isOptional", 1 ),
                                             { "isOptional", (x)=> x>n } ) )
                                 in
-                                    "(" & 
+                                    "(" &
                                     List.Accumulate(
                                         funsig,
                                         "",
@@ -340,24 +340,24 @@ ValueToText = (value, optional depth) =>
                                             Serialize.Identifier(item[Name]) & " as " & _serialize_typename(item[Value], true) )
                                      & ")",
 
-        _serialize_function_return_type = (x) => _serialize_typename(Type.FunctionReturn(x), true), 
+        _serialize_function_return_type = (x) => _serialize_typename(Type.FunctionReturn(x), true),
 
-        Serialize = (x) as text => 
-                           if x is binary       then try Serialize.Binary(x) otherwise "null /*serialize failed*/"        else 
-                           if x is date         then try Serialize.Date(x) otherwise "null /*serialize failed*/"          else 
-                           if x is datetime     then try Serialize.Datetime(x) otherwise "null /*serialize failed*/"      else 
-                           if x is datetimezone then try Serialize.Datetimezone(x) otherwise "null /*serialize failed*/"  else 
-                           if x is duration     then try Serialize.Duration(x) otherwise "null /*serialize failed*/"      else 
-                           if x is function     then try Serialize.Function(x) otherwise "null /*serialize failed*/"      else 
-                           if x is list         then try Serialize.List(x) otherwise "null /*serialize failed*/"          else 
+        Serialize = (x) as text =>
+                           if x is binary       then try Serialize.Binary(x) otherwise "null /*serialize failed*/"        else
+                           if x is date         then try Serialize.Date(x) otherwise "null /*serialize failed*/"          else
+                           if x is datetime     then try Serialize.Datetime(x) otherwise "null /*serialize failed*/"      else
+                           if x is datetimezone then try Serialize.Datetimezone(x) otherwise "null /*serialize failed*/"  else
+                           if x is duration     then try Serialize.Duration(x) otherwise "null /*serialize failed*/"      else
+                           if x is function     then try Serialize.Function(x) otherwise "null /*serialize failed*/"      else
+                           if x is list         then try Serialize.List(x) otherwise "null /*serialize failed*/"          else
                            if x is logical      then try Serialize.Logical(x) otherwise "null /*serialize failed*/"       else
                            if x is null         then try Serialize.Null(x) otherwise "null /*serialize failed*/"          else
                            if x is number       then try Serialize.Number(x) otherwise "null /*serialize failed*/"        else
-                           if x is record       then try Serialize.Record(x) otherwise "null /*serialize failed*/"        else 
-                           if x is table        then try Serialize.Table(x) otherwise "null /*serialize failed*/"         else 
-                           if x is text         then try Serialize.Text(x) otherwise "null /*serialize failed*/"          else 
-                           if x is time         then try Serialize.Time(x) otherwise "null /*serialize failed*/"          else 
-                           if x is type         then try Serialize.Type(x) otherwise "null /*serialize failed*/"          else 
-                           "[#_unable_to_serialize_#]"                     
+                           if x is record       then try Serialize.Record(x) otherwise "null /*serialize failed*/"        else
+                           if x is table        then try Serialize.Table(x) otherwise "null /*serialize failed*/"         else
+                           if x is text         then try Serialize.Text(x) otherwise "null /*serialize failed*/"          else
+                           if x is time         then try Serialize.Time(x) otherwise "null /*serialize failed*/"          else
+                           if x is type         then try Serialize.Type(x) otherwise "null /*serialize failed*/"          else
+                           "[#_unable_to_serialize_#]"
     in
         try Serialize(value) otherwise "<serialization failed>";
