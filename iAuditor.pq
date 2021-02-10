@@ -268,8 +268,8 @@ CreateNavTable = (group as text) as table =>
                 Table.FromRecords(
                     {
                         [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                        [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
-                        [Name = "GetSites", Data = Value.ReplaceType(GetSites, GetSitesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
+                        [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
+                        [Name = "GetSites", Data = Value.ReplaceType(GetSites, GetSitesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
                     },
                     type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
                 )
