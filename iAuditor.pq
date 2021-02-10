@@ -130,7 +130,8 @@ SiteType = type table [
     id = text,
     name = text,
     creator_id = text,
-    organisation_id = text
+    organisation_id = text,
+    deleted = logical
 ];
 
 ScheduleType = type table [
@@ -268,6 +269,7 @@ CreateNavTable = (group as text) as table =>
                     {
                         [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
                         [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
+                        [Name = "GetSites", Data = Value.ReplaceType(GetSites, GetSitesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
                     },
                     type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
                 )
@@ -327,6 +329,14 @@ GetInspectionItems = (optional templateIds as text, optional modifiedAfter as da
     in
         table;
 
+GetSites = (optional includeDeleted as logical) as table =>
+    let
+        query = [],
+        withIncludeDeleted = if (includeDeleted <> null)  then Record.AddField(query, "include_deleted", Logical.ToText(includeDeleted)) else query,
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "sites", withIncludeDeleted)
+    in
+        table;
+
 GetInspectionsType = type function (
     optional templateIds as (type text meta [
         Documentation.FieldCaption = "Template IDs",
@@ -380,6 +390,14 @@ GetInspectionItemsType = type function (
     optional includeInactive as (type logical meta [
         Documentation.FieldCaption = "Include Inactive",
         Documentation.FieldDescription = "Flag indicating should inactive inspection be included, or not",
+        Documentation.AllowedValues = { true, false }
+    ]))
+    as table;
+
+GetSitesType = type function (
+    optional includeDeleted as (type logical meta [
+        Documentation.FieldCaption = "Include Deleted",
+        Documentation.FieldDescription = "Flag indicating should deleted sites be included, or not",
         Documentation.AllowedValues = { true, false }
     ]))
     as table;
