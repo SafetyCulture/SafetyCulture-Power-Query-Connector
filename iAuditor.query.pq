@@ -13,6 +13,7 @@ shared iAuditor.UnitTest =
     TemplatePermissions = RootTable{[Name="template_permissions"]}[Data],
     Sites = RootTable{[Name="sites"]}[Data],
     GetInspections = RootTable{[Name="GetInspections"]}[Data](null, null, null, null, null),
+    GetSites = RootTable{[Name="GetSites"]}[Data](null),
 
     ScheduleFolder = RootTable{[Name="Schedule"]}[Data],
     Schedules = ScheduleFolder{[Name="schedules"]}[Data],
@@ -27,13 +28,13 @@ shared iAuditor.UnitTest =
     // <Expected Value> and <Actual Value> can be a literal or let statement
    facts =
    {
-       Fact("Check that we have the correct number of entries in our nav table", 11, Table.RowCount(RootTable)),
+       Fact("Check that we have the correct number of entries in our nav table", 13, Table.RowCount(RootTable)),
 
        Fact("We have Inspections data?", true, not Table.IsEmpty(Inspections)),
        Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(Inspections))),
 
         Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),
-        Fact("Inspection Items has 25 columns", 25, List.Count(Table.ColumnNames(InspectionItems))),
+        Fact("Inspection Items has 26 columns", 26, List.Count(Table.ColumnNames(InspectionItems))),
 
         Fact("We have Users data?", true, not Table.IsEmpty(Users)),
         Fact("Users has 6 columns", 6, List.Count(Table.ColumnNames(Users))),
@@ -51,10 +52,13 @@ shared iAuditor.UnitTest =
         Fact("Template Permissions has 5 columns", 5, List.Count(Table.ColumnNames(TemplatePermissions))),
 
         Fact("We have Sites data?", true, not Table.IsEmpty(Sites)),
-        Fact("Templates has 4 columns", 4, List.Count(Table.ColumnNames(Sites))),
+        Fact("Sites has 5 columns", 5, List.Count(Table.ColumnNames(Sites))),
 
         Fact("We have GetInspections data?", true, not Table.IsEmpty(GetInspections)),
         Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(GetInspections))),
+
+        Fact("We have GetSites data?", true, not Table.IsEmpty(GetSites)),
+        Fact("Inspections has 5 columns", 5, List.Count(Table.ColumnNames(GetSites))),
 
         Fact("We have Schedules data?", true, not Table.IsEmpty(Schedules)),
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Schedules))),
