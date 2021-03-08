@@ -4,6 +4,7 @@ BaseUrl = "https://api.safetyculture.io";
 
 // Data Source Kind description
 iAuditor = [
+    TestConnection = (orgName) => {"iAuditor.Contents", orgName},
     Authentication = [
         Key = [
             Label = Extension.LoadString("TokenLabel")
