@@ -12,7 +12,7 @@ iAuditor = [
             { "iAuditor.Contents", orgName },
     Authentication = [
         Key = [
-            KeyLabel = Extension.LoadString("TokenLabel")
+            Label = Extension.LoadString("TokenLabel")
         ]
     ],
     Label = Extension.LoadString("DataSourceLabel")
@@ -20,7 +20,7 @@ iAuditor = [
 
 // Data Source UI publishing description
 iAuditor.Publish = [
-    Beta = true,
+    Beta = false,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://github.com/SafetyCulture/iAuditor-Power-Query-Connector",
