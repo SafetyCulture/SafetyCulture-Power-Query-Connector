@@ -11,7 +11,9 @@ iAuditor = [
         in
             { "iAuditor.Contents", orgName },
     Authentication = [
-        Key = []
+        Key = [
+            KeyLabel = Extension.LoadString("TokenLabel")
+        ]
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
@@ -224,7 +226,19 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
 
 [DataSource.Kind="iAuditor", Publish="iAuditor.Publish"]
-shared iAuditor.Contents = (orgName as text) as table => iAuditorNavTable();
+shared iAuditor.Contents = Value.ReplaceType(iAuditorImpl, iAuditorType);
+
+iAuditorType = type function (
+    orgName as (type text meta [
+        Documentation.FieldCaption = "Organization name",
+        Documentation.FieldDescription = "Name of your organization",
+        Documentation.SampleValues = {"ACME"}
+    ]))
+    as table meta [
+        Documentation.Name = "iAuditor by SafetyCulture"
+    ];
+
+iAuditorImpl = (orgName as text) as table => iAuditorNavTable();
 
 iAuditorNavTable = () as table =>
     let
