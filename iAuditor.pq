@@ -4,6 +4,12 @@ BaseUrl = "https://api.safetyculture.io";
 
 // Data Source Kind description
 iAuditor = [
+    TestConnection = (dataSourcePath) =>
+        let
+            json = Json.Document(dataSourcePath),
+            orgName = json[orgName]
+        in
+            { "iAuditor.Contents", orgName },
     Authentication = [
         Key = [
             Label = Extension.LoadString("TokenLabel")
@@ -14,7 +20,7 @@ iAuditor = [
 
 // Data Source UI publishing description
 iAuditor.Publish = [
-    Beta = true,
+    Beta = false,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://github.com/SafetyCulture/iAuditor-Power-Query-Connector",
