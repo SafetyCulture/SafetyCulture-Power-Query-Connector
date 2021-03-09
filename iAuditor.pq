@@ -11,9 +11,7 @@ iAuditor = [
         in
             { "iAuditor.Contents", orgName },
     Authentication = [
-        Key = [
-            Label = Extension.LoadString("TokenLabel")
-        ]
+        Key = []
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
