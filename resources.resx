@@ -121,10 +121,10 @@
     <value>Connect to iAuditor</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>iAuditor by SafetyCulture Beta 2</value>
+    <value>iAuditor by SafetyCulture</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>iAuditor by SafetyCulture Beta 2</value>
+    <value>iAuditor by SafetyCulture</value>
   </data>
   <data name="TokenLabel" xml:space="preserve">
     <value>iAuditor API Token</value>
