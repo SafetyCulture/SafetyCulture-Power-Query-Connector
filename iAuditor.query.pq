@@ -34,7 +34,7 @@ shared iAuditor.UnitTest =
        Fact("Inspections has 27 columns", 27, List.Count(Table.ColumnNames(Inspections))),
 
         Fact("We have Inspection Items data?", true, not Table.IsEmpty(InspectionItems)),
-        Fact("Inspection Items has 26 columns", 26, List.Count(Table.ColumnNames(InspectionItems))),
+        Fact("Inspection Items has 27 columns", 27, List.Count(Table.ColumnNames(InspectionItems))),
 
         Fact("We have Users data?", true, not Table.IsEmpty(Users)),
         Fact("Users has 6 columns", 6, List.Count(Table.ColumnNames(Users))),
