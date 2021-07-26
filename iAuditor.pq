@@ -104,6 +104,9 @@ iAuditor = [
             FinishLogin = FinishLogin,
             Refresh = Refresh,
             Logout = Logout,
+            Label = "Login to your account"
+        ],
+        Key = [
             Label = Extension.LoadString("TokenLabel")
         ]
     ],
@@ -552,7 +555,8 @@ GetNextLink = (response) as nullable text =>
 
 MakeRequest = (url as text) =>
     let
-        accessToken = Extension.CurrentCredential()[access_token],
+        currentCredential = Extension.CurrentCredential(),
+        accessToken = if (currentCredential[AuthenticationKind] = "OAuth") then currentCredential[access_token] else currentCredential[Key],
 
         headers = [
             Accept = "application/json",
