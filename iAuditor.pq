@@ -104,7 +104,7 @@ iAuditor = [
             FinishLogin = FinishLogin,
             Refresh = Refresh,
             Logout = Logout,
-            Label = "Login to your account"
+            Label = "Log in to your account"
         ],
         Key = [
             Label = Extension.LoadString("TokenLabel")
