@@ -1,6 +1,94 @@
 ﻿section iAuditor;
 
+// Base API Url
 BaseUrl = "https://api.safetyculture.io";
+
+// OAuth values
+OAuthClientID = "2b7ZjQFAKzWubEChzMIDcVfDdjocrfzv";
+OAuthBaseUrl = "https://api.safetyculture.com/authorization/global/v1";
+OAuthLogoutUrl = "http://auth.safetyculture.com/v2/logout";
+OAuthRedirectUrl = "https://oauth.powerbi.com/views/oauthredirect.html";
+
+// Crypto functions for Authorization Code + PKCE
+GenerateRandomBytes = (count as number) =>
+    let
+        RandomBit = () => Number.Round(Number.RandomBetween(0, 255)),
+        list = List.Generate(()=> [ x = RandomBit(), y = {}] , each List.Count([y]) < count, each [x = RandomBit(), y = [y] & {x}] , each [x]),
+        binary = Binary.FromList(list)
+    in
+        binary;
+
+Base64Encode = (str as binary) =>
+    let
+        unescaped = Binary.ToText(str, BinaryEncoding.Base64),
+        text = Text.Replace(Text.Replace(Text.Replace(unescaped, "+", "-"), "/", "_"), "=", "")
+    in
+        text;
+
+
+StartLogin = (resourceUrl, state, display) =>
+    let
+        codeVerifier = Base64Encode(GenerateRandomBytes(32)),
+        codeChallenge = Base64Encode(Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary(codeVerifier, TextEncoding.Ascii))),
+        AuthorizeUrl = OAuthBaseUrl & "/auth/authorize?" & Uri.BuildQueryString([
+            client_id = OAuthClientID,
+            response_type = "code",
+            code_challenge_method = "S256",
+            code_challenge = codeChallenge,
+            state = state,
+            redirect_uri = OAuthRedirectUrl])
+    in
+        [
+            LoginUri = AuthorizeUrl,
+            CallbackUri = OAuthRedirectUrl,
+            WindowHeight = 740,
+            WindowWidth = 760,
+            // Need to roundtrip this value to FinishLogin
+            Context = codeVerifier
+        ];
+
+// The code verifier will be passed in through the context parameter.
+FinishLogin = (context, callbackUri, state) =>
+    let
+        Parts = Uri.Parts(callbackUri)[Query]
+    in
+        TokenMethod(Parts[code], "authorization_code", context);
+
+Refresh = (resourceUrl, refresh_token) => TokenMethod(refresh_token, "refresh_token");
+
+Logout = (accessToken) => OAuthLogoutUrl;
+
+// Verifier is optional to support both the original FinishLogin call
+// (which has a verifier) and the Refresh call (which does not).
+TokenMethod = (code, grant_type, optional verifier) =>
+    let
+        codeVerifier = if (verifier <> null) then [code_verifier = verifier] else [],
+        codeParameter = if (grant_type = "authorization_code") then [ code = code ] else [ refresh_token = code ],
+        query = codeVerifier & codeParameter & [
+            client_id = OAuthClientID,
+            grant_type = grant_type,
+            redirect_uri = OAuthRedirectUrl
+        ],
+ 
+        // Set this if your API returns a non-2xx status for login failures
+        ManualHandlingStatusCodes= {400, 403},
+        
+        Response = Web.Contents(OAuthBaseUrl & "/authorization:GetAccessToken", [
+            Content = Json.FromValue(query),
+            Headers = [
+                #"Content-type" = "application/json",
+                #"Accept" = "application/json"
+            ],
+            ManualStatusHandling = ManualHandlingStatusCodes
+        ]),
+        Parts = Json.Document(Response)
+    in
+        // check for error in response
+        if (Parts[error]? <> null) then 
+            error Error.Record(Parts[error], Parts[message]?)
+        else
+            Parts;
+
 
 // Data Source Kind description
 iAuditor = [
@@ -11,6 +99,13 @@ iAuditor = [
         in
             { "iAuditor.Contents", orgName },
     Authentication = [
+        OAuth = [
+            StartLogin = StartLogin,
+            FinishLogin = FinishLogin,
+            Refresh = Refresh,
+            Logout = Logout,
+            Label = "Log in to your account"
+        ],
         Key = [
             Label = Extension.LoadString("TokenLabel")
         ]
@@ -460,7 +555,8 @@ GetNextLink = (response) as nullable text =>
 
 MakeRequest = (url as text) =>
     let
-        accessToken = Extension.CurrentCredential()[Key],
+        currentCredential = Extension.CurrentCredential(),
+        accessToken = if (currentCredential[AuthenticationKind] = "OAuth") then currentCredential[access_token] else currentCredential[Key],
 
         headers = [
             Accept = "application/json",
