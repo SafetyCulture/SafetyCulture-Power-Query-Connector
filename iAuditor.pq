@@ -269,6 +269,8 @@ ScheduleOccurrenceType = type table [
     occurrence_id = text,
     user_id = text,
     template_id = text,
+    start_time = datetimezone,
+    due_time = datetimezone,
     miss_time = datetimezone,
     occurrence_status = text,
     assignee_status = text,
@@ -371,7 +373,8 @@ CreateNavTable = (group as text) as table =>
                     {
                         [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
                         [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                        [Name = "GetSites", Data = Value.ReplaceType(GetSites, GetSitesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
+                        [Name = "GetSites", Data = Value.ReplaceType(GetSites, GetSitesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
+                        [Name = "GetScheduleOccurrences", Data = Value.ReplaceType(GetScheduleOccurrences, GetScheduleOccurrencesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
                     },
                     type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
                 )
@@ -439,6 +442,16 @@ GetSites = (optional includeDeleted as logical) as table =>
     in
         table;
 
+GetScheduleOccurrences = (optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone) as table =>
+    let
+        query = [],
+        withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
+        withStartDate = if (startDate <> null)  then Record.AddField(withTemplateIds, "start_date", DateTimeZone.ToText(startDate, "yyyy-MM-ddTHH:mm:ssZ")) else withTemplateIds,
+        withEndDate = if (endDate <> null)  then Record.AddField(withStartDate, "end_date", DateTimeZone.ToText(endDate, "yyyy-MM-ddTHH:mm:ssZ")) else withStartDate,
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "schedule_occurrences", withEndDate)
+    in
+        table;
+
 GetInspectionsType = type function (
     optional templateIds as (type text meta [
         Documentation.FieldCaption = "Template IDs",
@@ -501,6 +514,22 @@ GetSitesType = type function (
         Documentation.FieldCaption = "Include Deleted",
         Documentation.FieldDescription = "Flag indicating should deleted sites be included, or not",
         Documentation.AllowedValues = { true, false }
+    ]))
+    as table;
+
+GetScheduleOccurrencesType = type function (
+    optional templateIds as (type text meta [
+        Documentation.FieldCaption = "Template IDs",
+        Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the schedule occurrences for",
+        Documentation.SampleValues = {"template_123,template_345"}
+    ]),
+    optional startDate as (type datetimezone meta [
+        Documentation.FieldCaption = "Start Date",
+        Documentation.FieldDescription = "Schedule occurrences have happened after this date (date range cannot exceed 6 months)"
+    ]),
+    optional endDate as (type datetimezone meta [
+        Documentation.FieldCaption = "End Date",
+        Documentation.FieldDescription = "Schedule occurrences have happened before this date (date range cannot exceed 6 months)"
     ]))
     as table;
 
