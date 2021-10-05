@@ -218,6 +218,7 @@ InspectionItemType = type table [
     is_failed_response = logical,
     comment = nullable text,
     media_files = nullable text,
+    media_ids = nullable text,
     media_hypertext_reference = nullable text,
     score = nullable number,
     max_score = nullable number,
@@ -294,7 +295,8 @@ ActionType = type table [
     audit_id = nullable text,
     audit_title = nullable text,
     audit_item_id = nullable text,
-    audit_item_label = nullable text
+    audit_item_label = nullable text,
+    completed_at = nullable datetimezone
 ];
 
 ActionAssigneeType = type table [
