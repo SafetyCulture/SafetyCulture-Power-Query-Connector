@@ -130,7 +130,8 @@ iAuditor.Icons = [
 
 GroupType = type table [
     name = text,
-    id = text
+    id = text,
+    organisation_id = text
 ];
 
 UserType = type table [
