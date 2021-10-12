@@ -130,7 +130,8 @@ iAuditor.Icons = [
 
 GroupType = type table [
     name = text,
-    id = text
+    id = text,
+    organisation_id = text
 ];
 
 UserType = type table [
@@ -144,7 +145,8 @@ UserType = type table [
 
 GroupUserType = type table [
     user_id = text,
-    group_id = text
+    group_id = text,
+    organisation_id = text
 ];
 
 TemplateType = type table [
@@ -157,7 +159,8 @@ TemplateType = type table [
     owner_name = nullable text,
     owner_id = nullable text,
     author_name = nullable text,
-    author_id = nullable text
+    author_id = nullable text,
+    organisation_id = text
 ];
 
 TemplatePermissionType = type table [
@@ -165,7 +168,8 @@ TemplatePermissionType = type table [
     template_id = text,
     permission = text,
     assignee_type = text,
-    assignee_id = text
+    assignee_id = text,
+    organisation_id = text
 ];
 
 InspectionType = type table [
@@ -182,6 +186,7 @@ InspectionType = type table [
     duration = nullable number,
     site_id = nullable text,
     template_id = text,
+    organisation_id = text,
     date_started = nullable datetimezone,
     date_completed = nullable datetimezone,
     date_modified = nullable datetimezone,
@@ -204,6 +209,7 @@ InspectionItemType = type table [
     audit_id = text,
     item_index = number,
     template_id = text,
+    organisation_id = text,
     parent_id = nullable text,
     created_at = datetimezone,
     modified_at = datetimezone,
@@ -253,6 +259,7 @@ ScheduleType = type table [
     can_late_submit = logical,
     site_id = nullable text,
     template_id = nullable text,
+    organisation_id = text,
     creator_user_id = nullable text
 ];
 
@@ -260,6 +267,7 @@ ScheduleAssigneeType = type table [
     id = text,
     schedule_id = text,
     assignee_id = text,
+    organisation_id = text,
     type = text,
     name = text
 ];
@@ -270,6 +278,7 @@ ScheduleOccurrenceType = type table [
     occurrence_id = text,
     user_id = text,
     template_id = text,
+    organisation_id = text,
     start_time = datetimezone,
     due_time = datetimezone,
     miss_time = datetimezone,
@@ -286,6 +295,7 @@ ActionType = type table [
     description = nullable text,
     priority = text,
     status = text,
+    organisation_id = text,
     due_date = nullable datetimezone,
     creator_user_id = nullable text,
     creator_user_name = nullable text,
@@ -304,6 +314,7 @@ ActionAssigneeType = type table [
     action_id = text,
     assignee_id = text,
     name = nullable text,
+    organisation_id = text,
     type = text
 ];
 
