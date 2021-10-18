@@ -69,10 +69,10 @@ TokenMethod = (code, grant_type, optional verifier) =>
             grant_type = grant_type,
             redirect_uri = OAuthRedirectUrl
         ],
- 
+
         // Set this if your API returns a non-2xx status for login failures
         ManualHandlingStatusCodes= {400, 403},
-        
+
         Response = Web.Contents(OAuthBaseUrl & "/authorization:GetAccessToken", [
             Content = Json.FromValue(query),
             Headers = [
@@ -84,7 +84,7 @@ TokenMethod = (code, grant_type, optional verifier) =>
         Parts = Json.Document(Response)
     in
         // check for error in response
-        if (Parts[error]? <> null) then 
+        if (Parts[error]? <> null) then
             error Error.Record(Parts[error], Parts[message]?)
         else
             Parts;
@@ -140,7 +140,8 @@ UserType = type table [
     organisation_id = text,
     firstname = text,
     lastname = text,
-    active = logical
+    active = logical,
+    last_seen_at = nullable datetimezone
 ];
 
 GroupUserType = type table [
