@@ -187,6 +187,7 @@ InspectionType = type table [
     duration = nullable number,
     site_id = nullable text,
     template_id = text,
+    template_name = text,
     organisation_id = text,
     date_started = nullable datetimezone,
     date_completed = nullable datetimezone,
