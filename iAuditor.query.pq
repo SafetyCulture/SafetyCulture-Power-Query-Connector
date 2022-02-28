@@ -24,6 +24,9 @@ shared iAuditor.UnitTest =
     Actions = ActionsFolder{[Name="actions"]}[Data],
     ActionAssignees = ActionsFolder{[Name="action_assignees"]}[Data],
 
+    IssuesFolder = RootTable{[Name="Issues"]}[Data],
+    Issues = IssuesFolder{[Name="issues"]}[Data],
+
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
    facts =
@@ -73,7 +76,10 @@ shared iAuditor.UnitTest =
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Actions))),
 
         Fact("We have Action Assignees data?", true, not Table.IsEmpty(ActionAssignees)),
-        Fact("Action Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ActionAssignees)))
+        Fact("Action Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ActionAssignees))),
+
+        Fact("We have Issue data?", true, not Table.IsEmpty(Issues)),
+        Fact("Actions has 17 columns", 17, List.Count(Table.ColumnNames(Issues)))
    },
 
    report = Facts.Summarize(facts)

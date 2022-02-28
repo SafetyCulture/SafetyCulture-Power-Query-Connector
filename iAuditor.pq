@@ -323,6 +323,26 @@ ActionAssigneeType = type table [
     type = text
 ];
 
+IssueType = type table [
+    id = text,
+    title = nullable text,
+    description = nullable text,
+    creator_id = text,
+    creator_user_name = nullable text,
+    created_at = datetimezone,
+    due_at = nullable datetimezone,
+    priority = nullable text,
+    status = nullable text,
+    template_id = nullable text,
+    inspection_id = nullable text,
+    inspection_name = nullable text,
+    site_id = nullable text,
+    site_name = nullable text,
+    location_name = nullable text,
+    category_id = nullable text,
+    category_label = nullable text
+];
+
 SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"users", UserType, "" },
     {"groups", GroupType, "" },
@@ -336,7 +356,8 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
     {"schedule_occurrences", ScheduleOccurrenceType, "Schedule" },
     {"actions", ActionType, "Actions" },
-    {"action_assignees", ActionAssigneeType, "Actions" }
+    {"action_assignees", ActionAssigneeType, "Actions" },
+    {"issues", IssueType, "Issues" }
 });
 
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
@@ -424,6 +445,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema,{{"id", "schedule_id"}})
         else if (Type.Is(schema, ActionType)) then
             Table.RenameColumns(appliedSchema,{{"id", "action_id"}})
+        else if (Type.Is(schema, IssueType)) then
+            Table.RenameColumns(appliedSchema, {{"id", "issue_id"}})
         else
             appliedSchema;
 
@@ -457,6 +480,13 @@ GetSites = (optional includeDeleted as logical) as table =>
         query = [],
         withIncludeDeleted = if (includeDeleted <> null)  then Record.AddField(query, "include_deleted", Logical.ToText(includeDeleted)) else query,
         table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "sites", withIncludeDeleted)
+    in
+        table;
+
+GetIssues = () as table =>
+    let
+       query = [], 
+       table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues")
     in
         table;
 
@@ -550,6 +580,8 @@ GetScheduleOccurrencesType = type function (
         Documentation.FieldDescription = "Schedule occurrences have happened before this date (date range cannot exceed 6 months)"
     ]))
     as table;
+
+GetIssuesType = type function () as table;
 
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.
