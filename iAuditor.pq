@@ -245,7 +245,8 @@ SiteType = type table [
     name = text,
     creator_id = text,
     organisation_id = text,
-    deleted = logical
+    deleted = logical,
+    site_uuid = text
 ];
 
 ScheduleType = type table [
@@ -485,7 +486,7 @@ GetSites = (optional includeDeleted as logical) as table =>
 
 GetIssues = () as table =>
     let
-       query = [], 
+       query = [],
        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues")
     in
         table;
