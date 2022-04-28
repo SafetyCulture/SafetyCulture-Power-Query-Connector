@@ -246,7 +246,9 @@ SiteType = type table [
     creator_id = text,
     organisation_id = text,
     deleted = logical,
-    site_uuid = text
+    site_uuid = text,
+    meta_label = text,
+    parent_id = text
 ];
 
 ScheduleType = type table [
@@ -476,11 +478,12 @@ GetInspectionItems = (optional templateIds as text, optional modifiedAfter as da
     in
         table;
 
-GetSites = (optional includeDeleted as logical) as table =>
+GetSites = (optional includeDeleted as logical, optional includeFullHierarchy as logical) as table =>
     let
         query = [],
         withIncludeDeleted = if (includeDeleted <> null)  then Record.AddField(query, "include_deleted", Logical.ToText(includeDeleted)) else query,
-        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "sites", withIncludeDeleted)
+        withIncludeFullHierarchy = if (includeDeleted <> null)  then Record.AddField(withIncludeDeleted, "show_only_leaf_nodes", Logical.ToText(not includeFullHierarchy)) else withIncludeDeleted,
+        table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "sites", withIncludeFullHierarchy)
     in
         table;
 
@@ -562,6 +565,11 @@ GetSitesType = type function (
     optional includeDeleted as (type logical meta [
         Documentation.FieldCaption = "Include Deleted",
         Documentation.FieldDescription = "Flag indicating should deleted sites be included, or not",
+        Documentation.AllowedValues = { true, false }
+    ])),
+    optional includeFullHierarchy as (type logical meta [
+        Documentation.FieldCaption = "Include Full Hierarchy",
+        Documentation.FieldDescription = "Flag indicating whether to include full sites hierarchy, e.g. Areas, Regions, etc.",
         Documentation.AllowedValues = { true, false }
     ]))
     as table;
