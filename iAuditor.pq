@@ -482,7 +482,7 @@ GetSites = (optional includeDeleted as logical, optional includeFullHierarchy as
     let
         query = [],
         withIncludeDeleted = if (includeDeleted <> null)  then Record.AddField(query, "include_deleted", Logical.ToText(includeDeleted)) else query,
-        withIncludeFullHierarchy = if (includeDeleted <> null)  then Record.AddField(withIncludeDeleted, "show_only_leaf_nodes", Logical.ToText(not includeFullHierarchy)) else withIncludeDeleted,
+        withIncludeFullHierarchy = if (includeFullHierarchy <> null)  then Record.AddField(withIncludeDeleted, "show_only_leaf_nodes", Logical.ToText(includeFullHierarchy <> true)) else withIncludeDeleted,
         table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "sites", withIncludeFullHierarchy)
     in
         table;
@@ -566,7 +566,7 @@ GetSitesType = type function (
         Documentation.FieldCaption = "Include Deleted",
         Documentation.FieldDescription = "Flag indicating should deleted sites be included, or not",
         Documentation.AllowedValues = { true, false }
-    ])),
+    ]),
     optional includeFullHierarchy as (type logical meta [
         Documentation.FieldCaption = "Include Full Hierarchy",
         Documentation.FieldDescription = "Flag indicating whether to include full sites hierarchy, e.g. Areas, Regions, etc.",
