@@ -251,6 +251,11 @@ SiteType = type table [
     parent_id = text
 ];
 
+SiteMemberType = type table [
+    site_id = text,
+    member_id = text
+];
+
 ScheduleType = type table [
     id = text,
     description = text,
@@ -355,6 +360,7 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
     {"inspections", InspectionType, "" },
     {"inspection_items", InspectionItemType, "" },
     {"sites", SiteType, "" },
+    {"site_members", SiteMemberType, "" },
     {"schedules", ScheduleType, "Schedule" },
     {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
     {"schedule_occurrences", ScheduleOccurrenceType, "Schedule" },
