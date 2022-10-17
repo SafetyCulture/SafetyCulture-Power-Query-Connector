@@ -349,7 +349,8 @@ IssueType = type table [
     location_name = nullable text,
     category_id = nullable text,
     category_label = nullable text,
-    modified_at = nullable datetimezone
+    modified_at = nullable datetimezone,
+    completed_at = nullable datetimezone
 ];
 
 SchemaTable = #table({"Entity", "Type", "Group"}, {
