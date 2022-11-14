@@ -1,4 +1,4 @@
-﻿section iAuditor;
+﻿section SafetyCulture;
 
 // Base API Url
 BaseUrl = "https://api.safetyculture.io";
@@ -91,13 +91,13 @@ TokenMethod = (code, grant_type, optional verifier) =>
 
 
 // Data Source Kind description
-iAuditor = [
+SafetyCulture = [
     TestConnection = (dataSourcePath) =>
         let
             json = Json.Document(dataSourcePath),
             orgName = json[orgName]
         in
-            { "iAuditor.Contents", orgName },
+            { "SafetyCulture.Contents", orgName },
     Authentication = [
         OAuth = [
             StartLogin = StartLogin,
@@ -114,18 +114,18 @@ iAuditor = [
 ];
 
 // Data Source UI publishing description
-iAuditor.Publish = [
+SafetyCulture.Publish = [
     Beta = false,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
-    LearnMoreUrl = "https://github.com/SafetyCulture/iAuditor-Power-Query-Connector",
-    SourceImage = iAuditor.Icons,
-    SourceTypeImage = iAuditor.Icons
+    LearnMoreUrl = "https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector",
+    SourceImage = SafetyCulture.Icons,
+    SourceTypeImage = SafetyCulture.Icons
 ];
 
-iAuditor.Icons = [
-    Icon16 = { Extension.Contents("iAuditor16.png"), Extension.Contents("iAuditor20.png"), Extension.Contents("iAuditor24.png"), Extension.Contents("iAuditor32.png") },
-    Icon32 = { Extension.Contents("iAuditor32.png"), Extension.Contents("iAuditor40.png"), Extension.Contents("iAuditor48.png"), Extension.Contents("iAuditor64.png") }
+SafetyCulture.Icons = [
+    Icon16 = { Extension.Contents("SafetyCulture16.png"), Extension.Contents("SafetyCulture20.png"), Extension.Contents("SafetyCulture24.png"), Extension.Contents("SafetyCulture32.png") },
+    Icon32 = { Extension.Contents("SafetyCulture32.png"), Extension.Contents("SafetyCulture40.png"), Extension.Contents("SafetyCulture48.png"), Extension.Contents("SafetyCulture64.png") }
 ];
 
 GroupType = type table [
@@ -373,22 +373,22 @@ SchemaTable = #table({"Entity", "Type", "Group"}, {
 
 GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
 
-[DataSource.Kind="iAuditor", Publish="iAuditor.Publish"]
-shared iAuditor.Contents = Value.ReplaceType(iAuditorImpl, iAuditorType);
+[DataSource.Kind="SafetyCulture", Publish="SafetyCulture.Publish"]
+shared SafetyCulture.Contents = Value.ReplaceType(SafetyCultureImpl, SafetyCultureType);
 
-iAuditorType = type function (
+SafetyCultureType = type function (
     orgName as (type text meta [
         Documentation.FieldCaption = "Organization name",
         Documentation.FieldDescription = "Name of your organization",
         Documentation.SampleValues = {"ACME"}
     ]))
     as table meta [
-        Documentation.Name = "iAuditor by SafetyCulture"
+        Documentation.Name = "SafetyCulture by SafetyCulture"
     ];
 
-iAuditorImpl = (orgName as text) as table => iAuditorNavTable();
+SafetyCultureImpl = (orgName as text) as table => SafetyCultureNavTable();
 
-iAuditorNavTable = () as table =>
+SafetyCultureNavTable = () as table =>
     let
         groups = Table.Column(SchemaTable, "Group"),
         distinctGroups = List.Distinct(groups),
