@@ -3,7 +3,7 @@
 The SafetyCulture Power Query Connector provides a data connection for SafetyCulture in Power BI.
 
 # Getting started
-To learn how to install and use this connector please visit our [support page](https://support.safetyculture.com/integrations/power-bi-desktop-pull-data-via-the-SafetyCulture-connector/).
+To learn how to install and use this connector please visit our [support page](https://help.safetyculture.com/en_us/1514571103-SkUXQp9Hv).
 
 ## Sample report
 A Power BI report template has been included with [each release](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/releases). After installing the connector you can download and open this report in Power BI desktop. You will be prompted to enter an API key which you can generate by visiting [API Tokens](https://app.safetyculture.com/account/api-tokens) page in SafetyCulture website.
