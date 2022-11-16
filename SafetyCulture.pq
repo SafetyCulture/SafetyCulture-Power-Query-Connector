@@ -383,7 +383,7 @@ SafetyCultureType = type function (
         Documentation.SampleValues = {"ACME"}
     ]))
     as table meta [
-        Documentation.Name = "SafetyCulture by SafetyCulture"
+        Documentation.Name = "SafetyCulture"
     ];
 
 SafetyCultureImpl = (orgName as text) as table => SafetyCultureNavTable();
