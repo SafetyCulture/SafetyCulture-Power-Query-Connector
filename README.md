@@ -1,16 +1,16 @@
-# iAuditor Power Query Connector
+# SafetyCulture Power Query Connector
 
-The iAuditor Power Query Connector provides a data connection for iAuditor in Power BI.
+The SafetyCulture Power Query Connector provides a data connection for SafetyCulture in Power BI.
 
 # Getting started
-To learn how to install and use this connector please visit our [support page](https://support.safetyculture.com/integrations/power-bi-desktop-pull-data-via-the-iauditor-connector/).
+To learn how to install and use this connector please visit our [support page](https://help.safetyculture.com/en_us/1514571103-SkUXQp9Hv).
 
 ## Sample report
-A Power BI report template has been included with [each release](https://github.com/SafetyCulture/iAuditor-Power-Query-Connector/releases). After installing the connector you can download and open this report in Power BI desktop. You will be prompted to enter an API key which you can generate by visiting [API Tokens](https://app.safetyculture.com/account/api-tokens) page in SafetyCulture website.
+A Power BI report template has been included with [each release](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/releases). After installing the connector you can download and open this report in Power BI desktop. You will be prompted to enter an API key which you can generate by visiting [API Tokens](https://app.safetyculture.com/account/api-tokens) page in SafetyCulture website.
 
 # Frequently Asked Questions (FAQ)
 ## What’s the purpose of the “Org Name”?
-The “Org Name” helps distinguish between organizations locally. This can be particularly useful if you choose to consume data from multiple iAuditor organizations. The “Org Name” information doesn’t get transmitted to our servers and is only stored locally on your machine.
+The “Org Name” helps distinguish between organizations locally. This can be particularly useful if you choose to consume data from multiple SafetyCulture organizations. The “Org Name” information doesn’t get transmitted to our servers and is only stored locally on your machine.
 
 You can label the “Org Name” freely, as long as it's unique.
 
@@ -44,12 +44,12 @@ Empty “groups” and “users” tables could mean that you don’t have the �
 ## Testing locally
 - Open the project in Visual Studio.
 - Build the project.
-- Copy `bin\Debug\iAuditor.mez` into `[My Documents]\Power BI Desktop\Custom Connectors` directory. You can use [Auto Deploy](https://marketplace.visualstudio.com/items?itemName=lennyomg.AutoDeploy) Visual Studio Extension to make this step easier.
+- Copy `bin\Debug\SafetyCulture.mez` into `[My Documents]\Power BI Desktop\Custom Connectors` directory. You can use [Auto Deploy](https://marketplace.visualstudio.com/items?itemName=lennyomg.AutoDeploy) Visual Studio Extension to make this step easier.
 - Enable the `Custom data connectors` preview feature in Power BI Desktop (under `File > Options and settings > Custom data connectors`).
 - Open Power BI Desktop.
 - Make sure you enable `Allow any extensions` in the security options of Power BI.
 - Select `Get Data > More` to bring up the Get Data dialog.
-- Search for iAuditor
+- Search for SafetyCulture
 
 # Connector signing
 In Power BI, the loading of custom connectors is limited by your choice of security setting.
@@ -65,5 +65,5 @@ To release a new version you just need to push a new tag and `GitHub Actions` wi
 `git tag -a v1.0 -m "Initial Public Release"`.  
 Acceptable version formats include `v1.0` and `v1.0-beta2`.
 3. Push your tag to GitHub using `git push origin v1.0`.
-4. Wait for [Github Actions](https://github.com/SafetyCulture/iAuditor-Power-Query-Connector/actions) to finish its work.
-4. Update the [release draft](https://github.com/SafetyCulture/iAuditor-Power-Query-Connector/releases) and publish it.
+4. Wait for [Github Actions](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/actions) to finish its work.
+4. Update the [release draft](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/releases) and publish it.

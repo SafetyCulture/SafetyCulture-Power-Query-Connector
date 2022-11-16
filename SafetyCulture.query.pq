@@ -1,9 +1,9 @@
-﻿section iAuditorUnitTests;
+﻿section SafetyCultureUnitTests;
 
-shared iAuditor.UnitTest =
+shared SafetyCulture.UnitTest =
 [
     // Put any common variables here if you only want them to be evaluated once
-    RootTable = iAuditor.Contents("acme"),
+    RootTable = SafetyCulture.Contents("acme"),
     Inspections = RootTable{[Name="inspections"]}[Data],
     InspectionItems = RootTable{[Name="inspection_items"]}[Data],
     Users = RootTable{[Name="users"]}[Data],

@@ -48,8 +48,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/iAuditorSigned.pqx
-        asset_name: iAuditorSigned.pqx
+        asset_path: ./build/SafetyCultureSigned.pqx
+        asset_name: SafetyCultureSigned.pqx
         asset_content_type: application/octet-stream
     - name: Upload sample report
       id: upload-sample-report

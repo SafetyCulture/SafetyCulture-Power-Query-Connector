@@ -18,7 +18,7 @@
     <SuppressCellErrors>False</SuppressCellErrors>
     <MaxRows>1000</MaxRows>
     <ExtensionProject>Yes</ExtensionProject>
-    <Name>iAuditor</Name>
+    <Name>SafetyCulture</Name>
     <ThrowOnFoldingFailure>False</ThrowOnFoldingFailure>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -37,31 +37,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="iAuditor.pq">
+    <Compile Include="SafetyCulture.pq">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor16.png">
+    <Compile Include="SafetyCulture16.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor20.png">
+    <Compile Include="SafetyCulture20.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor24.png">
+    <Compile Include="SafetyCulture24.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor32.png">
+    <Compile Include="SafetyCulture32.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor40.png">
+    <Compile Include="SafetyCulture40.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor48.png">
+    <Compile Include="SafetyCulture48.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor64.png">
+    <Compile Include="SafetyCulture64.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="iAuditor80.png">
+    <Compile Include="SafetyCulture80.png">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="resources.resx">
@@ -70,7 +70,7 @@
     <Compile Include="Diagnostics.pqm">
       <SubType>Content</SubType>
     </Compile>
-    <Content Include="iAuditor.query.pq">
+    <Content Include="SafetyCulture.query.pq">
       <SubType>Code</SubType>
     </Content>
     <Compile Include="Table.ToNavigationTable.pqm">
