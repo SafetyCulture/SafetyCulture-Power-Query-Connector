@@ -103,12 +103,12 @@ TokenMethod = (code, grant_type, optional verifier) =>
             Parts;
 
 // Data Source Kind description
-SafetyCulture = [
+iAuditor = [
     TestConnection = (dataSourcePath) =>
         let
             json = Json.Document(dataSourcePath), orgName = json[orgName]
         in
-            {"SafetyCulture.Contents", orgName},
+            {"iAuditor.Contents", orgName},
     Authentication = [
         OAuth = [
             StartLogin = StartLogin,
@@ -125,16 +125,16 @@ SafetyCulture = [
 ];
 
 // Data Source UI publishing description
-SafetyCulture.Publish = [
+iAuditor.Publish = [
     Beta = false,
     Category = "Other",
     ButtonText = {Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp")},
     LearnMoreUrl = "https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector",
-    SourceImage = SafetyCulture.Icons,
-    SourceTypeImage = SafetyCulture.Icons
+    SourceImage = iAuditor.Icons,
+    SourceTypeImage = iAuditor.Icons
 ];
 
-SafetyCulture.Icons = [
+iAuditor.Icons = [
     Icon16 = {
         Extension.Contents("SafetyCulture16.png"),
         Extension.Contents("SafetyCulture20.png"),
@@ -372,8 +372,8 @@ SchemaTable = #table(
 GetSchemaForEntity = (entity as text) as type =>
     try SchemaTable{[Entity = entity]}[Type] otherwise error "Couldn't find entity: '" & entity & "'";
 
-[DataSource.Kind = "SafetyCulture", Publish = "SafetyCulture.Publish"]
-shared SafetyCulture.Contents = Value.ReplaceType(SafetyCultureImpl, SafetyCultureType);
+[DataSource.Kind = "iAuditor", Publish = "iAuditor.Publish"]
+shared iAuditor.Contents = Value.ReplaceType(SafetyCultureImpl, SafetyCultureType);
 
 SafetyCultureType = type function (
     orgName as (
