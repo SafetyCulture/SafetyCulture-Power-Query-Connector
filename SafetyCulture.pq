@@ -13,7 +13,11 @@ OAuthRedirectUrl = "https://oauth.powerbi.com/views/oauthredirect.html";
 GenerateRandomBytes = (count as number) =>
     let
         RandomBit = () => Number.Round(Number.RandomBetween(0, 255)),
-        list = List.Generate(()=> [ x = RandomBit(), y = {}] , each List.Count([y]) < count, each [x = RandomBit(), y = [y] & {x}] , each [x]),
+        list = List.Generate(
+            () => [x = RandomBit(), y = {}], each List.Count([y]) < count, each [x = RandomBit(), y = [y] & {x}],
+            each
+                [x]
+        ),
         binary = Binary.FromList(list)
     in
         binary;
@@ -25,18 +29,24 @@ Base64Encode = (str as binary) =>
     in
         text;
 
-
 StartLogin = (resourceUrl, state, display) =>
     let
         codeVerifier = Base64Encode(GenerateRandomBytes(32)),
-        codeChallenge = Base64Encode(Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary(codeVerifier, TextEncoding.Ascii))),
-        AuthorizeUrl = OAuthBaseUrl & "/auth/authorize?" & Uri.BuildQueryString([
-            client_id = OAuthClientID,
-            response_type = "code",
-            code_challenge_method = "S256",
-            code_challenge = codeChallenge,
-            state = state,
-            redirect_uri = OAuthRedirectUrl])
+        codeChallenge = Base64Encode(
+            Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary(codeVerifier, TextEncoding.Ascii))
+        ),
+        AuthorizeUrl = OAuthBaseUrl
+            & "/auth/authorize?"
+            & Uri.BuildQueryString(
+                [
+                    client_id = OAuthClientID,
+                    response_type = "code",
+                    code_challenge_method = "S256",
+                    code_challenge = codeChallenge,
+                    state = state,
+                    redirect_uri = OAuthRedirectUrl
+                ]
+            )
     in
         [
             LoginUri = AuthorizeUrl,
@@ -63,24 +73,27 @@ Logout = (accessToken) => OAuthLogoutUrl;
 TokenMethod = (code, grant_type, optional verifier) =>
     let
         codeVerifier = if (verifier <> null) then [code_verifier = verifier] else [],
-        codeParameter = if (grant_type = "authorization_code") then [ code = code ] else [ refresh_token = code ],
-        query = codeVerifier & codeParameter & [
-            client_id = OAuthClientID,
-            grant_type = grant_type,
-            redirect_uri = OAuthRedirectUrl
-        ],
-
-        // Set this if your API returns a non-2xx status for login failures
-        ManualHandlingStatusCodes= {400, 403},
-
-        Response = Web.Contents(OAuthBaseUrl & "/authorization:GetAccessToken", [
-            Content = Json.FromValue(query),
-            Headers = [
-                #"Content-type" = "application/json",
-                #"Accept" = "application/json"
+        codeParameter = if (grant_type = "authorization_code") then [code = code] else [refresh_token = code],
+        query = codeVerifier
+            & codeParameter
+            & [
+                client_id = OAuthClientID,
+                grant_type = grant_type,
+                redirect_uri = OAuthRedirectUrl
             ],
-            ManualStatusHandling = ManualHandlingStatusCodes
-        ]),
+        // Set this if your API returns a non-2xx status for login failures
+        ManualHandlingStatusCodes = {400, 403},
+        Response = Web.Contents(
+            OAuthBaseUrl & "/authorization:GetAccessToken",
+            [
+                Content = Json.FromValue(query),
+                Headers = [
+                    #"Content-type" = "application/json",
+                    #"Accept" = "application/json"
+                ],
+                ManualStatusHandling = ManualHandlingStatusCodes
+            ]
+        ),
         Parts = Json.Document(Response)
     in
         // check for error in response
@@ -89,15 +102,13 @@ TokenMethod = (code, grant_type, optional verifier) =>
         else
             Parts;
 
-
 // Data Source Kind description
 SafetyCulture = [
     TestConnection = (dataSourcePath) =>
         let
-            json = Json.Document(dataSourcePath),
-            orgName = json[orgName]
+            json = Json.Document(dataSourcePath), orgName = json[orgName]
         in
-            { "SafetyCulture.Contents", orgName },
+            {"SafetyCulture.Contents", orgName},
     Authentication = [
         OAuth = [
             StartLogin = StartLogin,
@@ -117,22 +128,28 @@ SafetyCulture = [
 SafetyCulture.Publish = [
     Beta = false,
     Category = "Other",
-    ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
+    ButtonText = {Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp")},
     LearnMoreUrl = "https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector",
     SourceImage = SafetyCulture.Icons,
     SourceTypeImage = SafetyCulture.Icons
 ];
 
 SafetyCulture.Icons = [
-    Icon16 = { Extension.Contents("SafetyCulture16.png"), Extension.Contents("SafetyCulture20.png"), Extension.Contents("SafetyCulture24.png"), Extension.Contents("SafetyCulture32.png") },
-    Icon32 = { Extension.Contents("SafetyCulture32.png"), Extension.Contents("SafetyCulture40.png"), Extension.Contents("SafetyCulture48.png"), Extension.Contents("SafetyCulture64.png") }
+    Icon16 = {
+        Extension.Contents("SafetyCulture16.png"),
+        Extension.Contents("SafetyCulture20.png"),
+        Extension.Contents("SafetyCulture24.png"),
+        Extension.Contents("SafetyCulture32.png")
+    },
+    Icon32 = {
+        Extension.Contents("SafetyCulture32.png"),
+        Extension.Contents("SafetyCulture40.png"),
+        Extension.Contents("SafetyCulture48.png"),
+        Extension.Contents("SafetyCulture64.png")
+    }
 ];
 
-GroupType = type table [
-    name = text,
-    id = text,
-    organisation_id = text
-];
+GroupType = type table [name = text, id = text, organisation_id = text];
 
 UserType = type table [
     id = text,
@@ -144,11 +161,7 @@ UserType = type table [
     last_seen_at = nullable datetimezone
 ];
 
-GroupUserType = type table [
-    user_id = text,
-    group_id = text,
-    organisation_id = text
-];
+GroupUserType = type table [user_id = text, group_id = text, organisation_id = text];
 
 TemplateType = type table [
     id = text,
@@ -165,12 +178,7 @@ TemplateType = type table [
 ];
 
 TemplatePermissionType = type table [
-    id = text,
-    template_id = text,
-    permission = text,
-    assignee_type = text,
-    assignee_id = text,
-    organisation_id = text
+    id = text, template_id = text, permission = text, assignee_type = text, assignee_id = text, organisation_id = text
 ];
 
 InspectionType = type table [
@@ -251,10 +259,7 @@ SiteType = type table [
     parent_id = text
 ];
 
-SiteMemberType = type table [
-    site_id = text,
-    member_id = text
-];
+SiteMemberType = type table [site_id = text, member_id = text];
 
 ScheduleType = type table [
     id = text,
@@ -277,12 +282,7 @@ ScheduleType = type table [
 ];
 
 ScheduleAssigneeType = type table [
-    id = text,
-    schedule_id = text,
-    assignee_id = text,
-    organisation_id = text,
-    type = text,
-    name = text
+    id = text, schedule_id = text, assignee_id = text, organisation_id = text, type = text, name = text
 ];
 
 ScheduleOccurrenceType = type table [
@@ -323,12 +323,7 @@ ActionType = type table [
 ];
 
 ActionAssigneeType = type table [
-    id = text,
-    action_id = text,
-    assignee_id = text,
-    name = nullable text,
-    organisation_id = text,
-    type = text
+    id = text, action_id = text, assignee_id = text, name = nullable text, organisation_id = text, type = text
 ];
 
 IssueType = type table [
@@ -353,38 +348,44 @@ IssueType = type table [
     completed_at = nullable datetimezone
 ];
 
-SchemaTable = #table({"Entity", "Type", "Group"}, {
-    {"users", UserType, "" },
-    {"groups", GroupType, "" },
-    {"group_users", GroupUserType, "" },
-    {"templates", TemplateType, "" },
-    {"template_permissions", TemplatePermissionType, "" },
-    {"inspections", InspectionType, "" },
-    {"inspection_items", InspectionItemType, "" },
-    {"sites", SiteType, "" },
-    {"site_members", SiteMemberType, "" },
-    {"schedules", ScheduleType, "Schedule" },
-    {"schedule_assignees", ScheduleAssigneeType, "Schedule" },
-    {"schedule_occurrences", ScheduleOccurrenceType, "Schedule" },
-    {"actions", ActionType, "Actions" },
-    {"action_assignees", ActionAssigneeType, "Actions" },
-    {"issues", IssueType, "Issues" }
-});
+SchemaTable = #table(
+    {"Entity", "Type", "Group"},
+    {
+        {"users", UserType, ""},
+        {"groups", GroupType, ""},
+        {"group_users", GroupUserType, ""},
+        {"templates", TemplateType, ""},
+        {"template_permissions", TemplatePermissionType, ""},
+        {"inspections", InspectionType, ""},
+        {"inspection_items", InspectionItemType, ""},
+        {"sites", SiteType, ""},
+        {"site_members", SiteMemberType, ""},
+        {"schedules", ScheduleType, "Schedule"},
+        {"schedule_assignees", ScheduleAssigneeType, "Schedule"},
+        {"schedule_occurrences", ScheduleOccurrenceType, "Schedule"},
+        {"actions", ActionType, "Actions"},
+        {"action_assignees", ActionAssigneeType, "Actions"},
+        {"issues", IssueType, "Issues"}
+    }
+);
 
-GetSchemaForEntity = (entity as text) as type => try SchemaTable{[Entity=entity]}[Type] otherwise error "Couldn't find entity: '" & entity &"'";
+GetSchemaForEntity = (entity as text) as type =>
+    try SchemaTable{[Entity = entity]}[Type] otherwise error "Couldn't find entity: '" & entity & "'";
 
-[DataSource.Kind="SafetyCulture", Publish="SafetyCulture.Publish"]
+[DataSource.Kind = "SafetyCulture", Publish = "SafetyCulture.Publish"]
 shared SafetyCulture.Contents = Value.ReplaceType(SafetyCultureImpl, SafetyCultureType);
 
 SafetyCultureType = type function (
-    orgName as (type text meta [
-        Documentation.FieldCaption = "Organization name",
-        Documentation.FieldDescription = "Name of your organization",
-        Documentation.SampleValues = {"ACME"}
-    ]))
-    as table meta [
-        Documentation.Name = "SafetyCulture"
-    ];
+    orgName as (
+        type text meta [
+            Documentation.FieldCaption = "Organization name",
+            Documentation.FieldDescription = "Name of your organization",
+            Documentation.SampleValues = {"ACME"}
+        ]
+    )
+) as table meta [
+    Documentation.Name = "SafetyCulture"
+];
 
 SafetyCultureImpl = (orgName as text) as table => SafetyCultureNavTable();
 
@@ -409,26 +410,63 @@ CreateNavTable = (group as text) as table =>
         entityNames = Table.SelectColumns(entities, {"Entity"}),
         rename = Table.RenameColumns(entityNames, {{"Entity", "Name"}}),
         // Add Data as a calculated column
-        withData = Table.AddColumn(rename, "Data", each GetEntity(Uri.Combine(BaseUrl, "/feed/"), [Name]), type table),
+        withData = Table.AddColumn(
+            rename, "Data", each GetEntity(Uri.Combine(BaseUrl, "/feed/"), [Name]), type table
+        ),
         // Add ItemKind and ItemName as fixed text values
         withItemKind = Table.AddColumn(withData, "ItemKind", each "Table", type text),
         withItemName = Table.AddColumn(withItemKind, "ItemName", each "Table", type text),
         // Indicate that the node should not be expandable
         withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each true, type logical),
         // Add function to the table
-        withFunction = if (group = "") then
-            Table.Combine({
-                withIsLeaf,
-                Table.FromRecords(
+        withFunction =
+            if (group = "") then
+                Table.Combine(
                     {
-                        [Name = "GetInspections", Data = Value.ReplaceType(GetInspections, GetInspectionsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                        [Name = "GetInspectionItems", Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                        [Name = "GetSites", Data = Value.ReplaceType(GetSites, GetSitesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true],
-                        [Name = "GetScheduleOccurrences", Data = Value.ReplaceType(GetScheduleOccurrences, GetScheduleOccurrencesType), ItemKind = "Function", ItemName = "Function", IsLeaf = true]
-                    },
-                    type table[Name = Text.Type, Data = Function.Type, ItemKind = Text.Type, ItemName = Text.Type, IsLeaf = Logical.Type]
+                        withIsLeaf,
+                        Table.FromRecords(
+                            {
+                                [
+                                    Name = "GetInspections",
+                                    Data = Value.ReplaceType(GetInspections, GetInspectionsType),
+                                    ItemKind = "Function",
+                                    ItemName = "Function",
+                                    IsLeaf = true
+                                ],
+                                [
+                                    Name = "GetInspectionItems",
+                                    Data = Value.ReplaceType(GetInspectionItems, GetInspectionItemsType),
+                                    ItemKind = "Function",
+                                    ItemName = "Function",
+                                    IsLeaf = true
+                                ],
+                                [
+                                    Name = "GetSites",
+                                    Data = Value.ReplaceType(GetSites, GetSitesType),
+                                    ItemKind = "Function",
+                                    ItemName = "Function",
+                                    IsLeaf = true
+                                ],
+                                [
+                                    Name = "GetScheduleOccurrences",
+                                    Data = Value.ReplaceType(GetScheduleOccurrences, GetScheduleOccurrencesType),
+                                    ItemKind = "Function",
+                                    ItemName = "Function",
+                                    IsLeaf = true
+                                ]
+                            },
+                            type table [
+                                Name = Text.Type,
+                                Data = Function.Type,
+                                ItemKind = Text.Type,
+                                ItemName = Text.Type,
+                                IsLeaf = Logical.Type
+                            ]
+                        )
+                    }
                 )
-            }) else withIsLeaf,
+            else
+                withIsLeaf,
         // Generate the nav table
         navTable = Table.ToNavigationTable(withFunction, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
     in
@@ -443,45 +481,110 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
         appliedSchema = Table.ChangeType(result, schema)
     in
         if (Type.Is(schema, UserType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "user_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "user_id"}})
         else if (Type.Is(schema, GroupType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "group_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "group_id"}})
         else if (Type.Is(schema, TemplateType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "template_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "template_id"}})
         else if (Type.Is(schema, InspectionType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "audit_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "audit_id"}})
         else if (Type.Is(schema, SiteType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "site_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "site_id"}})
         else if (Type.Is(schema, ScheduleType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "schedule_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "schedule_id"}})
         else if (Type.Is(schema, ActionType)) then
-            Table.RenameColumns(appliedSchema,{{"id", "action_id"}})
+            Table.RenameColumns(appliedSchema, {{"id", "action_id"}})
         else if (Type.Is(schema, IssueType)) then
             Table.RenameColumns(appliedSchema, {{"id", "issue_id"}})
         else
             appliedSchema;
 
-GetInspections = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text) as table =>
+GetInspections = (
+    optional templateIds as text,
+    optional modifiedAfter as datetimezone,
+    optional modifiedBefore as datetimezone,
+    optional archived as text,
+    optional completed as text
+) as table =>
     let
         query = [],
-        withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
-        withModifiedAfter = if (modifiedAfter <> null)  then Record.AddField(withTemplateIds, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withTemplateIds,
-        withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(withModifiedAfter, "modified_before", DateTimeZone.ToText(modifiedBefore, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
-        withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
-        withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
+        withTemplateIds =
+            if (templateIds <> null) then
+                Record.AddField(query, "template", Text.Split(templateIds, ","))
+            else
+                query,
+        withModifiedAfter =
+            if (modifiedAfter <> null) then
+                Record.AddField(
+                    withTemplateIds, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")
+                )
+            else
+                withTemplateIds,
+        withModifiedBefore =
+            if (modifiedBefore <> null) then
+                Record.AddField(
+                    withModifiedAfter, "modified_before", DateTimeZone.ToText(modifiedBefore, "yyyy-MM-ddTHH:mm:ssZ")
+                )
+            else
+                withModifiedAfter,
+        withArchived =
+            if (archived <> null) then
+                Record.AddField(withModifiedBefore, "archived", archived)
+            else
+                withModifiedBefore,
+        withCompleted =
+            if (completed <> null) then
+                Record.AddField(withArchived, "completed", completed)
+            else
+                withArchived,
         table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "inspections", withCompleted)
     in
         table;
 
-GetInspectionItems = (optional templateIds as text, optional modifiedAfter as datetimezone, optional modifiedBefore as datetimezone, optional archived as text, optional completed as text, optional includeInactive as logical) as table =>
+GetInspectionItems = (
+    optional templateIds as text,
+    optional modifiedAfter as datetimezone,
+    optional modifiedBefore as datetimezone,
+    optional archived as text,
+    optional completed as text,
+    optional includeInactive as logical
+) as table =>
     let
         query = [],
-        withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
-        withModifiedAfter = if (modifiedAfter <> null)  then Record.AddField(withTemplateIds, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")) else withTemplateIds,
-        withModifiedBefore = if (modifiedBefore <> null)  then Record.AddField(withModifiedAfter, "modified_before", DateTimeZone.ToText(modifiedBefore, "yyyy-MM-ddTHH:mm:ssZ")) else withModifiedAfter,
-        withArchived = if (archived <> null) then Record.AddField(withModifiedBefore, "archived", archived) else withModifiedBefore,
-        withCompleted = if (completed <> null) then Record.AddField(withArchived, "completed", completed) else withArchived,
-        withIncludeInactive = if (includeInactive <> null) then Record.AddField(withCompleted, "include_inactive", Logical.ToText(includeInactive)) else withCompleted,
+        withTemplateIds =
+            if (templateIds <> null) then
+                Record.AddField(query, "template", Text.Split(templateIds, ","))
+            else
+                query,
+        withModifiedAfter =
+            if (modifiedAfter <> null) then
+                Record.AddField(
+                    withTemplateIds, "modified_after", DateTimeZone.ToText(modifiedAfter, "yyyy-MM-ddTHH:mm:ssZ")
+                )
+            else
+                withTemplateIds,
+        withModifiedBefore =
+            if (modifiedBefore <> null) then
+                Record.AddField(
+                    withModifiedAfter, "modified_before", DateTimeZone.ToText(modifiedBefore, "yyyy-MM-ddTHH:mm:ssZ")
+                )
+            else
+                withModifiedAfter,
+        withArchived =
+            if (archived <> null) then
+                Record.AddField(withModifiedBefore, "archived", archived)
+            else
+                withModifiedBefore,
+        withCompleted =
+            if (completed <> null) then
+                Record.AddField(withArchived, "completed", completed)
+            else
+                withArchived,
+        withIncludeInactive =
+            if (includeInactive <> null) then
+                Record.AddField(withCompleted, "include_inactive", Logical.ToText(includeInactive))
+            else
+                withCompleted,
         table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "inspection_items", withIncludeInactive)
     in
         table;
@@ -489,114 +592,167 @@ GetInspectionItems = (optional templateIds as text, optional modifiedAfter as da
 GetSites = (optional includeDeleted as logical, optional includeFullHierarchy as logical) as table =>
     let
         query = [],
-        withIncludeDeleted = if (includeDeleted <> null)  then Record.AddField(query, "include_deleted", Logical.ToText(includeDeleted)) else query,
-        withIncludeFullHierarchy = if (includeFullHierarchy <> null)  then Record.AddField(withIncludeDeleted, "show_only_leaf_nodes", Logical.ToText(includeFullHierarchy <> true)) else withIncludeDeleted,
+        withIncludeDeleted =
+            if (includeDeleted <> null) then
+                Record.AddField(query, "include_deleted", Logical.ToText(includeDeleted))
+            else
+                query,
+        withIncludeFullHierarchy =
+            if (includeFullHierarchy <> null) then
+                Record.AddField(
+                    withIncludeDeleted, "show_only_leaf_nodes", Logical.ToText(includeFullHierarchy <> true)
+                )
+            else
+                withIncludeDeleted,
         table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "sites", withIncludeFullHierarchy)
     in
         table;
 
-GetIssues = () as table =>
-    let
-       query = [],
-       table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues")
-    in
-        table;
+GetIssues = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues") in table;
 
-GetScheduleOccurrences = (optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone) as table =>
+GetScheduleOccurrences = (
+    optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone
+) as table =>
     let
         query = [],
-        withTemplateIds = if (templateIds <> null)  then Record.AddField(query, "template", Text.Split(templateIds, ",")) else query,
-        withStartDate = if (startDate <> null)  then Record.AddField(withTemplateIds, "start_date", DateTimeZone.ToText(startDate, "yyyy-MM-ddTHH:mm:ssZ")) else withTemplateIds,
-        withEndDate = if (endDate <> null)  then Record.AddField(withStartDate, "end_date", DateTimeZone.ToText(endDate, "yyyy-MM-ddTHH:mm:ssZ")) else withStartDate,
+        withTemplateIds =
+            if (templateIds <> null) then
+                Record.AddField(query, "template", Text.Split(templateIds, ","))
+            else
+                query,
+        withStartDate =
+            if (startDate <> null) then
+                Record.AddField(
+                    withTemplateIds, "start_date", DateTimeZone.ToText(startDate, "yyyy-MM-ddTHH:mm:ssZ")
+                )
+            else
+                withTemplateIds,
+        withEndDate =
+            if (endDate <> null) then
+                Record.AddField(withStartDate, "end_date", DateTimeZone.ToText(endDate, "yyyy-MM-ddTHH:mm:ssZ"))
+            else
+                withStartDate,
         table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "schedule_occurrences", withEndDate)
     in
         table;
 
 GetInspectionsType = type function (
-    optional templateIds as (type text meta [
-        Documentation.FieldCaption = "Template IDs",
-        Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the inspections for",
-        Documentation.SampleValues = {"template_123,template_345"}
-    ]),
-    optional modifiedAfter as (type datetimezone meta [
-        Documentation.FieldCaption = "Modified After",
-        Documentation.FieldDescription = "Inspections should be last modified after this date and time"
-    ]),
-    optional modifiedBefore as (type datetimezone meta [
-        Documentation.FieldCaption = "Modified Before",
-        Documentation.FieldDescription = "Inspections should be last modified before this date and time"
-    ]),
-    optional archived as (type text meta [
-        Documentation.FieldCaption = "Archived",
-        Documentation.FieldDescription = "Flag indicating should inspections be archived, non archived, or both",
-        Documentation.AllowedValues = { "true", "false", "both" }
-    ]),
-    optional completed as (type text meta [
-        Documentation.FieldCaption = "Completed",
-        Documentation.FieldDescription = "Flag indicating should inspections be completed, non completed, or both",
-        Documentation.AllowedValues = { "true", "false", "both" }
-    ]))
-    as table;
+    optional templateIds as (
+        type text meta [
+            Documentation.FieldCaption = "Template IDs",
+            Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the inspections for",
+            Documentation.SampleValues = {"template_123,template_345"}
+        ]
+    ),
+    optional modifiedAfter as (
+        type datetimezone meta [
+            Documentation.FieldCaption = "Modified After",
+            Documentation.FieldDescription = "Inspections should be last modified after this date and time"
+        ]
+    ),
+    optional modifiedBefore as (
+        type datetimezone meta [
+            Documentation.FieldCaption = "Modified Before",
+            Documentation.FieldDescription = "Inspections should be last modified before this date and time"
+        ]
+    ),
+    optional archived as (
+        type text meta [
+            Documentation.FieldCaption = "Archived",
+            Documentation.FieldDescription = "Flag indicating should inspections be archived, non archived, or both",
+            Documentation.AllowedValues = {"true", "false", "both"}
+        ]
+    ),
+    optional completed as (
+        type text meta [
+            Documentation.FieldCaption = "Completed",
+            Documentation.FieldDescription = "Flag indicating should inspections be completed, non completed, or both",
+            Documentation.AllowedValues = {"true", "false", "both"}
+        ]
+    )
+) as table;
 
 GetInspectionItemsType = type function (
-    optional templateIds as (type text meta [
-        Documentation.FieldCaption = "Template IDs",
-        Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the inspections for",
-        Documentation.SampleValues = {"template_123,template_345"}
-    ]),
-    optional modifiedAfter as (type datetimezone meta [
-        Documentation.FieldCaption = "Modified After",
-        Documentation.FieldDescription = "Inspections should be last modified after this date and time"
-    ]),
-    optional modifiedBefore as (type datetimezone meta [
-        Documentation.FieldCaption = "Modified Before",
-        Documentation.FieldDescription = "Inspections should be last modified before this date and time"
-    ]),
-    optional archived as (type text meta [
-        Documentation.FieldCaption = "Archived",
-        Documentation.FieldDescription = "Flag indicating should inspections be archived, non archived, or both",
-        Documentation.AllowedValues = { "true", "false", "both" }
-    ]),
-    optional completed as (type text meta [
-        Documentation.FieldCaption = "Completed",
-        Documentation.FieldDescription = "Flag indicating should inspections be completed, non completed, or both",
-        Documentation.AllowedValues = { "true", "false", "both" }
-    ]),
-    optional includeInactive as (type logical meta [
-        Documentation.FieldCaption = "Include Inactive",
-        Documentation.FieldDescription = "Flag indicating should inactive inspection be included, or not",
-        Documentation.AllowedValues = { true, false }
-    ]))
-    as table;
+    optional templateIds as (
+        type text meta [
+            Documentation.FieldCaption = "Template IDs",
+            Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the inspections for",
+            Documentation.SampleValues = {"template_123,template_345"}
+        ]
+    ),
+    optional modifiedAfter as (
+        type datetimezone meta [
+            Documentation.FieldCaption = "Modified After",
+            Documentation.FieldDescription = "Inspections should be last modified after this date and time"
+        ]
+    ),
+    optional modifiedBefore as (
+        type datetimezone meta [
+            Documentation.FieldCaption = "Modified Before",
+            Documentation.FieldDescription = "Inspections should be last modified before this date and time"
+        ]
+    ),
+    optional archived as (
+        type text meta [
+            Documentation.FieldCaption = "Archived",
+            Documentation.FieldDescription = "Flag indicating should inspections be archived, non archived, or both",
+            Documentation.AllowedValues = {"true", "false", "both"}
+        ]
+    ),
+    optional completed as (
+        type text meta [
+            Documentation.FieldCaption = "Completed",
+            Documentation.FieldDescription = "Flag indicating should inspections be completed, non completed, or both",
+            Documentation.AllowedValues = {"true", "false", "both"}
+        ]
+    ),
+    optional includeInactive as (
+        type logical meta [
+            Documentation.FieldCaption = "Include Inactive",
+            Documentation.FieldDescription = "Flag indicating should inactive inspection be included, or not",
+            Documentation.AllowedValues = {true, false}
+        ]
+    )
+) as table;
 
 GetSitesType = type function (
-    optional includeDeleted as (type logical meta [
-        Documentation.FieldCaption = "Include Deleted",
-        Documentation.FieldDescription = "Flag indicating should deleted sites be included, or not",
-        Documentation.AllowedValues = { true, false }
-    ]),
-    optional includeFullHierarchy as (type logical meta [
-        Documentation.FieldCaption = "Include Full Hierarchy",
-        Documentation.FieldDescription = "Flag indicating whether to include full sites hierarchy, e.g. Areas, Regions, etc.",
-        Documentation.AllowedValues = { true, false }
-    ]))
-    as table;
+    optional includeDeleted as (
+        type logical meta [
+            Documentation.FieldCaption = "Include Deleted",
+            Documentation.FieldDescription = "Flag indicating should deleted sites be included, or not",
+            Documentation.AllowedValues = {true, false}
+        ]
+    ),
+    optional includeFullHierarchy as (
+        type logical meta [
+            Documentation.FieldCaption = "Include Full Hierarchy",
+            Documentation.FieldDescription = "Flag indicating whether to include full sites hierarchy, e.g. Areas, Regions, etc.",
+            Documentation.AllowedValues = {true, false}
+        ]
+    )
+) as table;
 
 GetScheduleOccurrencesType = type function (
-    optional templateIds as (type text meta [
-        Documentation.FieldCaption = "Template IDs",
-        Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the schedule occurrences for",
-        Documentation.SampleValues = {"template_123,template_345"}
-    ]),
-    optional startDate as (type datetimezone meta [
-        Documentation.FieldCaption = "Start Date",
-        Documentation.FieldDescription = "Schedule occurrences have happened after this date (date range cannot exceed 6 months)"
-    ]),
-    optional endDate as (type datetimezone meta [
-        Documentation.FieldCaption = "End Date",
-        Documentation.FieldDescription = "Schedule occurrences have happened before this date (date range cannot exceed 6 months)"
-    ]))
-    as table;
+    optional templateIds as (
+        type text meta [
+            Documentation.FieldCaption = "Template IDs",
+            Documentation.FieldDescription = "Comma separated list of IDs of the template you want to load the schedule occurrences for",
+            Documentation.SampleValues = {"template_123,template_345"}
+        ]
+    ),
+    optional startDate as (
+        type datetimezone meta [
+            Documentation.FieldCaption = "Start Date",
+            Documentation.FieldDescription = "Schedule occurrences have happened after this date (date range cannot exceed 6 months)"
+        ]
+    ),
+    optional endDate as (
+        type datetimezone meta [
+            Documentation.FieldCaption = "End Date",
+            Documentation.FieldDescription = "Schedule occurrences have happened before this date (date range cannot exceed 6 months)"
+        ]
+    )
+) as table;
 
 GetIssuesType = type function () as table;
 
@@ -604,14 +760,15 @@ GetIssuesType = type function () as table;
 // After every page, we check the "NextLink" record on the metadata of the previous request.
 // Table.GenerateByPage will keep asking for more pages until we return null.
 GetAllPagesByNextLink = (url as text, optional schema as type) as table =>
-    Table.GenerateByPage((previous) =>
-        let
-            // if previous is null, then this is our first page of data
-            nextLink = if (previous = null) then url else Value.Metadata(previous)[NextLink]?,
-            // if NextLink was set to null by the previous call, we know we have no more data
-            page = if (nextLink <> null) then GetPage(nextLink, schema) else null
-        in
-            page
+    Table.GenerateByPage(
+        (previous) =>
+            let
+                // if previous is null, then this is our first page of data
+                nextLink = if (previous = null) then url else Value.Metadata(previous)[NextLink]?,
+                // if NextLink was set to null by the previous call, we know we have no more data
+                page = if (nextLink <> null) then GetPage(nextLink, schema) else null
+            in
+                page
     );
 
 GetPage = (url as text, optional schema as type) as table =>
@@ -619,7 +776,6 @@ GetPage = (url as text, optional schema as type) as table =>
         body = MakeRequest(url),
         nextLink = GetNextLink(body[metadata]),
         bodyData = if (Record.HasFields(body, "data")) then body[data] else {},
-
         // If we have no schema, use Table.FromRecords() instead
         // (and hope that our results all have the same fields).
         // If we have a schema, expand the record using its field names
@@ -637,36 +793,34 @@ GetPage = (url as text, optional schema as type) as table =>
     in
         data meta [NextLink = nextLink];
 
-
 // In this implementation, 'response' will be the parsed metadata of the response.
 // We look for the 'next_page' field and simply return null if it doesn't exist.
 GetNextLink = (response) as nullable text =>
     let
         nextPageLink = Record.FieldOrDefault(response, "next_page"),
-
         link = if nextPageLink <> null then Uri.Combine(BaseUrl, nextPageLink) else null
     in
         link;
 
-
 MakeRequest = (url as text) =>
     let
         currentCredential = Extension.CurrentCredential(),
-        accessToken = if (currentCredential[AuthenticationKind] = "OAuth") then currentCredential[access_token] else currentCredential[Key],
-
+        accessToken =
+            if (currentCredential[AuthenticationKind] = "OAuth") then
+                currentCredential[access_token]
+            else
+                currentCredential[Key],
         headers = [
             Accept = "application/json",
             Authorization = "Bearer " & accessToken,
             #"sc-integration-id" = "app-integrations-powerbi",
             #"sc-integration-version" = "1.0"
         ],
-
         failStatusCodes = {500, 502, 503, 504, 429},
-
         waitForResult = Value.WaitFor(
             (iteration) =>
                 let
-                     _url = Diagnostics.LogValue("Accessing URL", url),
+                    _url = Diagnostics.LogValue("Accessing URL", url),
                     result = Web.Contents(
                         _url,
                         [
@@ -682,9 +836,10 @@ MakeRequest = (url as text) =>
                     actualResult = if List.Contains(failStatusCodes, _status) then null else buffered
                 in
                     actualResult,
-            (iteration) => #duration(0, 0, 0, Number.Power(2, iteration)*2),
-            6), // retry after 4, 8, 16 and 32 seconds
-
+            (iteration) => #duration(0, 0, 0, Number.Power(2, iteration) * 2),
+            6
+        ),
+        // retry after 4, 8, 16 and 32 seconds
         request = Json.Document(waitForResult)
     in
         request;
@@ -695,17 +850,18 @@ MakeRequest = (url as text) =>
 // TEMPORARY WORKAROUND until we're able to reference other M modules
 Extension.LoadFunction = (name as text) =>
     let
-        binary = Extension.Contents(name),
-        asText = Text.FromBinary(binary)
+        binary = Extension.Contents(name), asText = Text.FromBinary(binary)
     in
         Expression.Evaluate(asText, #shared);
 
 Table.ChangeType = Extension.LoadFunction("Table.ChangeType.pqm");
 Table.GenerateByPage = Extension.LoadFunction("Table.GenerateByPage.pqm");
 Table.ToNavigationTable = Extension.LoadFunction("Table.ToNavigationTable.pqm");
+
 Value.WaitFor = Extension.LoadFunction("Value.WaitFor.pqm");
 
 // Diagnostics module contains multiple functions. We can take the ones we need.
 Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
+
 Diagnostics.LogValue = Diagnostics[LogValue];
 Diagnostics.LogFailure = Diagnostics[LogFailure];
