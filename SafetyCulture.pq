@@ -348,6 +348,18 @@ IssueType = type table [
     completed_at = nullable datetimezone
 ];
 
+AssetsType = type table [
+    id = text,
+    code = text,
+    type_id = text,
+    type_name = text,
+    fields = text,
+    created_at = datetimezone,
+    modified_at = datetimezone,
+    site_id = nullable text,
+    state = text
+];
+
 SchemaTable = #table(
     {"Entity", "Type", "Group"},
     {
@@ -365,7 +377,8 @@ SchemaTable = #table(
         {"schedule_occurrences", ScheduleOccurrenceType, "Schedule"},
         {"actions", ActionType, "Actions"},
         {"action_assignees", ActionAssigneeType, "Actions"},
-        {"issues", IssueType, "Issues"}
+        {"issues", IssueType, "Issues"},
+        {"assets", AssetsType, "Assets"}
     }
 );
 
@@ -496,6 +509,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema, {{"id", "action_id"}})
         else if (Type.Is(schema, IssueType)) then
             Table.RenameColumns(appliedSchema, {{"id", "issue_id"}})
+        else if (Type.Is(schema, AssetType)) then
+            Table.RenameColumns(appliedSchema, {{"id", "asset_id"}})
         else
             appliedSchema;
 
@@ -609,6 +624,8 @@ GetSites = (optional includeDeleted as logical, optional includeFullHierarchy as
         table;
 
 GetIssues = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues") in table;
+
+GetAssets = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "assets") in table;
 
 GetScheduleOccurrences = (
     optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone
@@ -755,6 +772,8 @@ GetScheduleOccurrencesType = type function (
 ) as table;
 
 GetIssuesType = type function () as table;
+
+GetAssetsType = type function () as table;
 
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.
