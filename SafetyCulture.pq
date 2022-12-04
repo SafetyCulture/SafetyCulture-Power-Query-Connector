@@ -348,7 +348,7 @@ IssueType = type table [
     completed_at = nullable datetimezone
 ];
 
-AssetsType = type table [
+AssetType = type table [
     id = text,
     code = text,
     type_id = text,
@@ -378,7 +378,7 @@ SchemaTable = #table(
         {"actions", ActionType, "Actions"},
         {"action_assignees", ActionAssigneeType, "Actions"},
         {"issues", IssueType, "Issues"},
-        {"assets", AssetsType, "Assets"}
+        {"assets", AssetType, "Assets"}
     }
 );
 
