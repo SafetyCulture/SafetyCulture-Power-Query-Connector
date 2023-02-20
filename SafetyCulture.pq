@@ -319,7 +319,8 @@ ActionType = type table [
     audit_title = nullable text,
     audit_item_id = nullable text,
     audit_item_label = nullable text,
-    completed_at = nullable datetimezone
+    completed_at = nullable datetimezone,
+    action_label = nullable text
 ];
 
 ActionAssigneeType = type table [
