@@ -361,6 +361,19 @@ AssetType = type table [
     state = text
 ];
 
+ActionTimelineItemType = type table [
+    id = text,
+    task_id = text,
+    organisation_id = text,
+    action_creator_id = text,
+    action_creator_name = text,
+    timestamp = datetimezone,
+    creator_id = text,
+    creator_name = text,
+    item_type = text,
+    item_data = text
+];
+
 SchemaTable = #table(
     {"Entity", "Type", "Group"},
     {
@@ -379,7 +392,8 @@ SchemaTable = #table(
         {"actions", ActionType, "Actions"},
         {"action_assignees", ActionAssigneeType, "Actions"},
         {"issues", IssueType, "Issues"},
-        {"assets", AssetType, "Assets"}
+        {"assets", AssetType, "Assets"},
+        {"action_timeline_items", ActionTimelineItemType, "Actions"}
     }
 );
 
@@ -512,6 +526,8 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema, {{"id", "issue_id"}})
         else if (Type.Is(schema, AssetType)) then
             Table.RenameColumns(appliedSchema, {{"id", "asset_id"}})
+        else if (Type.Is(schema, ActionTimelineItemType)) then
+            Table.RenameColumns(appliedSchema, {{"id", "item_id"}})
         else
             appliedSchema;
 
@@ -627,6 +643,9 @@ GetSites = (optional includeDeleted as logical, optional includeFullHierarchy as
 GetIssues = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues") in table;
 
 GetAssets = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "assets") in table;
+
+GetActionTimelineItems = () as table => let query = [], table = GetEntity(
+    Uri.Combine(BaseUrl, "/feed/"), "action_timeline_items") in table;
 
 GetScheduleOccurrences = (
     optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone
@@ -775,6 +794,8 @@ GetScheduleOccurrencesType = type function (
 GetIssuesType = type function () as table;
 
 GetAssetsType = type function () as table;
+
+GetActionTimelineItemsType = type function () as table;
 
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.

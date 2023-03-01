@@ -24,6 +24,7 @@ shared SafetyCulture.UnitTest = [
     Issues = IssuesFolder{[Name = "issues"]}[Data],
     AssetsFolder = RootTable{[Name = "Assets"]}[Data],
     Assets = AssetsFolder{[Name = "assets"]}[Data],
+    ActionTimelineItems = ActionsFolder{[Name = "action_timeline_items"]}[Data],
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
     // <Expected Value> and <Actual Value> can be a literal or let statement
     facts = {
@@ -61,7 +62,9 @@ shared SafetyCulture.UnitTest = [
         Fact("We have Issue data?", true, not Table.IsEmpty(Issues)),
         Fact("Actions has 17 columns", 17, List.Count(Table.ColumnNames(Issues))),
         Fact("We have Asset data?", true, not Table.IsEmpty(Assets)),
-        Fact("Assets has 9 columns", 9, List.Count(Table.ColumnNames(Assets)))
+        Fact("Assets has 9 columns", 9, List.Count(Table.ColumnNames(Assets))),
+        Fact("We have Action Timeline Items data?", true, not Table.IsEmpty(ActionTimelineItems)),
+        Fact("Action Timeline Items has 10 columns", 10, List.Count(Table.ColumnNames(ActionTimelineItems)))
     },
     report = Facts.Summarize(facts)
 ][report];
