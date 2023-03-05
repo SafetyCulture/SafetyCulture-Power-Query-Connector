@@ -1,7 +1,7 @@
 ﻿section SafetyCulture;
 
 // Base API Url
-BaseUrl = "https://edge-router-api.scinfradev.com";
+BaseUrl = "https://api.safetyculture.io";
 
 // OAuth values
 OAuthClientID = "2b7ZjQFAKzWubEChzMIDcVfDdjocrfzv";
