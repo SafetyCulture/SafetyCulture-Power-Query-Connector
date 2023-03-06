@@ -327,6 +327,19 @@ ActionAssigneeType = type table [
     id = text, action_id = text, assignee_id = text, name = nullable text, organisation_id = text, type = text
 ];
 
+ActionTimelineItemType = type table [
+    id = text,
+    task_id = text,
+    organisation_id = text,
+    task_creator_id = text,
+    task_creator_name = text,
+    timestamp = datetimezone,
+    creator_id = text,
+    creator_name = text,
+    item_type = text,
+    item_data = text
+];
+
 IssueType = type table [
     id = text,
     title = nullable text,
@@ -347,6 +360,19 @@ IssueType = type table [
     category_label = nullable text,
     modified_at = nullable datetimezone,
     completed_at = nullable datetimezone
+];
+
+IssueTimelineItemType = type table [
+    id = text,
+    task_id = text,
+    organisation_id = text,
+    task_creator_id = text,
+    task_creator_name = text,
+    timestamp = datetimezone,
+    creator_id = text,
+    creator_name = text,
+    item_type = text,
+    item_data = text
 ];
 
 AssetType = type table [
@@ -378,7 +404,9 @@ SchemaTable = #table(
         {"schedule_occurrences", ScheduleOccurrenceType, "Schedule"},
         {"actions", ActionType, "Actions"},
         {"action_assignees", ActionAssigneeType, "Actions"},
+        {"action_timeline_items", ActionTimelineItemType, "Actions"},
         {"issues", IssueType, "Issues"},
+        {"issue_timeline_items", IssueTimelineItemType, "Issues"},
         {"assets", AssetType, "Assets"}
     }
 );
@@ -508,10 +536,15 @@ GetEntity = (url as text, entity as text, optional query as record) as table =>
             Table.RenameColumns(appliedSchema, {{"id", "schedule_id"}})
         else if (Type.Is(schema, ActionType)) then
             Table.RenameColumns(appliedSchema, {{"id", "action_id"}})
+        else if (Type.Is(schema, ActionTimelineItemType)) then
+            Table.RenameColumns(appliedSchema, {{"id", "item_id"}})
         else if (Type.Is(schema, IssueType)) then
             Table.RenameColumns(appliedSchema, {{"id", "issue_id"}})
+        else if (Type.Is(schema, IssueTimelineItemType)) then
+            Table.RenameColumns(appliedSchema, {{"id", "item_id"}})
         else if (Type.Is(schema, AssetType)) then
             Table.RenameColumns(appliedSchema, {{"id", "asset_id"}})
+
         else
             appliedSchema;
 
@@ -627,6 +660,12 @@ GetSites = (optional includeDeleted as logical, optional includeFullHierarchy as
 GetIssues = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "issues") in table;
 
 GetAssets = () as table => let query = [], table = GetEntity(Uri.Combine(BaseUrl, "/feed/"), "assets") in table;
+
+GetActionTimelineItems = () as table => let query = [], table = GetEntity(
+    Uri.Combine(BaseUrl, "/feed/"), "action_timeline_items") in table;
+
+GetIssueTimelineItems = () as table => let query = [], table = GetEntity(
+    Uri.Combine(BaseUrl, "/feed/"), "issue_timeline_items") in table;
 
 GetScheduleOccurrences = (
     optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone
@@ -775,6 +814,10 @@ GetScheduleOccurrencesType = type function (
 GetIssuesType = type function () as table;
 
 GetAssetsType = type function () as table;
+
+GetActionTimelineItemsType = type function () as table;
+
+GetIssueTimelineItemsType = type function () as table;
 
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.

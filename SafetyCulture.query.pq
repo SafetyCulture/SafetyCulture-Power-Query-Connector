@@ -20,8 +20,10 @@ shared SafetyCulture.UnitTest = [
     ActionsFolder = RootTable{[Name = "Actions"]}[Data],
     Actions = ActionsFolder{[Name = "actions"]}[Data],
     ActionAssignees = ActionsFolder{[Name = "action_assignees"]}[Data],
+    ActionTimelineItems = ActionsFolder{[Name = "action_timeline_items"]}[Data],
     IssuesFolder = RootTable{[Name = "Issues"]}[Data],
     Issues = IssuesFolder{[Name = "issues"]}[Data],
+    IssueTimelineItems = IssuesFolder{[Name = "issue_timeline_items"]}[Data],
     AssetsFolder = RootTable{[Name = "Assets"]}[Data],
     Assets = AssetsFolder{[Name = "assets"]}[Data],
     // Fact(<Name of the Test>, <Expected Value>, <Actual Value>)
@@ -58,8 +60,12 @@ shared SafetyCulture.UnitTest = [
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Actions))),
         Fact("We have Action Assignees data?", true, not Table.IsEmpty(ActionAssignees)),
         Fact("Action Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ActionAssignees))),
+        Fact("We have Action Timeline Items data?", true, not Table.IsEmpty(ActionTimelineItems)),
+        Fact("Action Timeline Items has 10 columns", 10, List.Count(Table.ColumnNames(ActionTimelineItems))),
         Fact("We have Issue data?", true, not Table.IsEmpty(Issues)),
         Fact("Actions has 17 columns", 17, List.Count(Table.ColumnNames(Issues))),
+        Fact("We have Issue Timeline Items data?", true, not Table.IsEmpty(IssueTimelineItems)),
+        Fact("Issue Timeline Items has 10 columns", 10, List.Count(Table.ColumnNames(IssueTimelineItems))),
         Fact("We have Asset data?", true, not Table.IsEmpty(Assets)),
         Fact("Assets has 9 columns", 9, List.Count(Table.ColumnNames(Assets)))
     },
