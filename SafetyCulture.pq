@@ -210,7 +210,8 @@ InspectionType = type table [
     conducted_on = nullable datetimezone,
     personnel = nullable text,
     client_site = nullable text,
-    web_report_link = nullable text
+    web_report_link = nullable text,
+    asset_id = nullable text
 ];
 
 InspectionItemType = type table [
@@ -320,7 +321,8 @@ ActionType = type table [
     audit_item_id = nullable text,
     audit_item_label = nullable text,
     completed_at = nullable datetimezone,
-    action_label = nullable text
+    action_label = nullable text,
+    asset_id = nullable text
 ];
 
 ActionAssigneeType = type table [
@@ -359,7 +361,8 @@ IssueType = type table [
     category_id = nullable text,
     category_label = nullable text,
     modified_at = nullable datetimezone,
-    completed_at = nullable datetimezone
+    completed_at = nullable datetimezone,
+    asset_id = nullable text
 ];
 
 IssueTimelineItemType = type table [
