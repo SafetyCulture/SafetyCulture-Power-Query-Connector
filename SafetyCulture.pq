@@ -246,7 +246,9 @@ InspectionItemType = type table [
     mandatory = logical,
     inactive = logical,
     location_latitude = nullable number,
-    location_longitude = nullable number
+    location_longitude = nullable number,
+    primeelement_id = nullable text,
+    primeelement_index = nullable number
 ];
 
 SiteType = type table [
