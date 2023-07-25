@@ -223,6 +223,7 @@ ClientBin/
 *.jfm
 *.pfx
 *.publishsettings
+**/.DS_Store
 orleans.codegen.cs
 
 # Including strong name files can present a security risk
