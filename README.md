@@ -53,9 +53,12 @@ Empty “groups” and “users” tables could mean that you don’t have the �
 - [TripPin Tutorial](https://docs.microsoft.com/en-us/power-query/samples/trippin/readme) is a great starting point to understand how to create a new data source extension for Power Query.
 
 ### Testing locally
-
-- Open the project in Visual Studio Code.
-- Build the project (exec `\build.ps1` within PowerShell ran as Administrator).
+- Open the project in Visual Studio Code (Windows).
+- In PowerShell Admin:
+  - Set-ExecutionPolicy RemoteSigned
+  - del .\build\
+  - del .\MakePQX_Release\
+  - Build the project (execute `\build.ps1`).
 - Copy `bin\AnyCPU\Debug\SafetyCulture-Power-Query-Connector.mez` into `[My Documents]\Power BI Desktop\Custom Connectors` directory.
 - Enable the `Custom data connectors` preview feature in Power BI Desktop (under `File > Options and settings > Custom data connectors`).
 - Open Power BI Desktop.
