@@ -55,7 +55,7 @@ Empty “groups” and “users” tables could mean that you don’t have the �
 ### Testing locally
 
 - Open the project in Visual Studio Code.
-- Build the project.
+- Build the project (exec `\build.ps1` within PowerShell ran as Administrator).
 - Copy `bin\AnyCPU\Debug\SafetyCulture-Power-Query-Connector.mez` into `[My Documents]\Power BI Desktop\Custom Connectors` directory.
 - Enable the `Custom data connectors` preview feature in Power BI Desktop (under `File > Options and settings > Custom data connectors`).
 - Open Power BI Desktop.
