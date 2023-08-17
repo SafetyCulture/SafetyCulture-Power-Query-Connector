@@ -365,7 +365,8 @@ IssueType = type table [
     category_label = nullable text,
     modified_at = nullable datetimezone,
     completed_at = nullable datetimezone,
-    asset_id = nullable text
+    asset_id = nullable text,
+    unique_id = nullable text
 ];
 
 IssueTimelineItemType = type table [
