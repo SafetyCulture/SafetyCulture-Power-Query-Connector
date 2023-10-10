@@ -58,6 +58,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./SafetyCulture Report Template.pbit
+        asset_path: ./Power BI Templates/General Report/SafetyCulture Report Template.pbit
         asset_name: SafetyCulture Report Template.pbit
         asset_content_type: application/octet-stream
