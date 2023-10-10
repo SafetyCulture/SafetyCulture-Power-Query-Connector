@@ -432,7 +432,7 @@ SchemaTable = #table(
         {"action_timeline_items", ActionTimelineItemType, "Actions"},
         {"issues", IssueType, "Issues"},
         {"issue_timeline_items", IssueTimelineItemType, "Issues"},
-        {"assets", AssetType, "Assets"}
+        {"assets", AssetType, "Assets"},
         {"training_course_progresses", CourseProgressType, ""}
     }
 );
