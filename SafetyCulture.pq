@@ -394,6 +394,24 @@ AssetType = type table [
     state = text
 ];
 
+CourseProgressType = type table [
+    opened_at = nullable datetimezone,
+    completed_at = nullable datetimezone,
+    total_lessons = number,
+    completed_lessons = number,
+    course_id = logical,
+    course_external_id = text,
+    course_title = text,
+    user_email = text,
+    user_first_name = text,
+    user_last_name = text,
+    user_id = text,
+    user_external_id = text,
+    progress_percent = number,
+    score = number,
+    due_at = nullable datetimezone
+];
+
 SchemaTable = #table(
     {"Entity", "Type", "Group"},
     {
@@ -415,6 +433,7 @@ SchemaTable = #table(
         {"issues", IssueType, "Issues"},
         {"issue_timeline_items", IssueTimelineItemType, "Issues"},
         {"assets", AssetType, "Assets"}
+        {"training_course_progresses", CourseProgressType, ""}
     }
 );
 
