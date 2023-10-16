@@ -394,6 +394,24 @@ AssetType = type table [
     state = text
 ];
 
+CourseProgressType = type table [
+    opened_at = nullable datetimezone,
+    completed_at = nullable datetimezone,
+    total_lessons = number,
+    completed_lessons = number,
+    course_id = text,
+    course_external_id = text,
+    course_title = text,
+    user_email = text,
+    user_first_name = text,
+    user_last_name = text,
+    user_id = text,
+    user_external_id = text,
+    progress_percent = number,
+    score = number,
+    due_at = nullable datetimezone
+];
+
 SchemaTable = #table(
     {"Entity", "Type", "Group"},
     {
@@ -414,7 +432,8 @@ SchemaTable = #table(
         {"action_timeline_items", ActionTimelineItemType, "Actions"},
         {"issues", IssueType, "Issues"},
         {"issue_timeline_items", IssueTimelineItemType, "Issues"},
-        {"assets", AssetType, "Assets"}
+        {"assets", AssetType, "Assets"},
+        {"training-course-progress", CourseProgressType, "Training"}
     }
 );
 
@@ -458,9 +477,10 @@ CreateNavTable = (group as text) as table =>
         entities = Table.SelectRows(SchemaTable, each [Group] = group),
         entityNames = Table.SelectColumns(entities, {"Entity"}),
         rename = Table.RenameColumns(entityNames, {{"Entity", "Name"}}),
+        withURI = if (group = "Training") then "/training/v1/feed/" else "/feed/",
         // Add Data as a calculated column
         withData = Table.AddColumn(
-            rename, "Data", each GetEntity(Uri.Combine(BaseUrl, "/feed/"), [Name]), type table
+            rename, "Data", each GetEntity(Uri.Combine(BaseUrl, withURI), [Name]), type table
         ),
         // Add ItemKind and ItemName as fixed text values
         withItemKind = Table.AddColumn(withData, "ItemKind", each "Table", type text),
@@ -523,7 +543,13 @@ CreateNavTable = (group as text) as table =>
 
 GetEntity = (url as text, entity as text, optional query as record) as table =>
     let
-        withQuery = if (query <> null) then entity & "?" & Uri.BuildQueryString(query) else entity,
+        withQuery = 
+            if (query <> null) 
+                then entity & "?" & Uri.BuildQueryString(query)
+            else if (query = null and entity = "training-course-progress")
+                then entity & "?completion_status=COMPLETION_STATUS_COMPLETED&limit=100"
+            else entity,
+        
         fullUrl = Uri.Combine(url, withQuery),
         schema = GetSchemaForEntity(entity),
         result = GetAllPagesByNextLink(fullUrl, schema),
