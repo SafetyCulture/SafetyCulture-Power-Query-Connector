@@ -543,11 +543,14 @@ CreateNavTable = (group as text) as table =>
 
 GetEntity = (url as text, entity as text, optional query as record) as table =>
     let
+        now = DateTimeZone.ToText(DateTimeZone.UtcNow(), "yyyy-MM-ddTHH:mm:ss"),
         withQuery = 
             if (query <> null) 
                 then entity & "?" & Uri.BuildQueryString(query)
             else if (query = null and entity = "training-course-progress")
                 then entity & "?completion_status=COMPLETION_STATUS_COMPLETED&limit=100"
+            else if (query = null and entity = "inspection_items")
+                then entity & "?modified_before="&now&"Z"                
             else entity,
         
         fullUrl = Uri.Combine(url, withQuery),
