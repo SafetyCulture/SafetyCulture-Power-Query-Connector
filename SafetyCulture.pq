@@ -281,7 +281,8 @@ ScheduleType = type table [
     site_id = nullable text,
     template_id = nullable text,
     organisation_id = text,
-    creator_user_id = nullable text
+    creator_user_id = nullable text,
+    asset_id = nullable text
 ];
 
 ScheduleAssigneeType = type table [
