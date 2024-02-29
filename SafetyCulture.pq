@@ -159,6 +159,7 @@ UserType = type table [
     lastname = text,
     active = logical,
     last_seen_at = nullable datetimezone
+    seat_type = text
 ];
 
 GroupUserType = type table [user_id = text, group_id = text, organisation_id = text];
