@@ -158,7 +158,7 @@ UserType = type table [
     firstname = text,
     lastname = text,
     active = logical,
-    last_seen_at = nullable datetimezone
+    last_seen_at = nullable datetimezone,
     seat_type = text
 ];
 
