@@ -334,6 +334,16 @@ ActionAssigneeType = type table [
     id = text, action_id = text, assignee_id = text, name = nullable text, organisation_id = text, type = text
 ];
 
+IssueAssigneesType = type table [
+    id = text,
+    issue_id = text,
+    assignee_id = text,
+    name = nullable text,
+    organisation_id = text,
+    modified_at = datetimezone,
+    type = text
+];
+
 ActionTimelineItemType = type table [
     id = text,
     task_id = text,
@@ -436,6 +446,7 @@ SchemaTable = #table(
         {"issue_timeline_items", IssueTimelineItemType, "Issues"},
         {"assets", AssetType, "Assets"},
         {"training-course-progress", CourseProgressType, "Training"}
+        {"issue_assignees", IssueAssigneesType, "Issues"},
     }
 );
 
@@ -705,6 +716,9 @@ GetActionTimelineItems = () as table => let query = [], table = GetEntity(
 GetIssueTimelineItems = () as table => let query = [], table = GetEntity(
     Uri.Combine(BaseUrl, "/feed/"), "issue_timeline_items") in table;
 
+GetIssueAssigneesItems = () as table => let query = [], table = GetEntity(
+    Uri.Combine(BaseUrl, "/feed/"), "issue_assignees") in table;
+
 GetScheduleOccurrences = (
     optional templateIds as text, optional startDate as datetimezone, optional endDate as datetimezone
 ) as table =>
@@ -856,6 +870,8 @@ GetAssetsType = type function () as table;
 GetActionTimelineItemsType = type function () as table;
 
 GetIssueTimelineItemsType = type function () as table;
+
+GetIssueAssigneesType = type function () as table;
 
 // Read all pages of data.
 // After every page, we check the "NextLink" record on the metadata of the previous request.
