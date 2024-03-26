@@ -445,8 +445,8 @@ SchemaTable = #table(
         {"issues", IssueType, "Issues"},
         {"issue_timeline_items", IssueTimelineItemType, "Issues"},
         {"assets", AssetType, "Assets"},
-        {"training-course-progress", CourseProgressType, "Training"}
-        {"issue_assignees", IssueAssigneesType, "Issues"},
+        {"training-course-progress", CourseProgressType, "Training"},
+        {"issue_assignees", IssueAssigneesType, "Issues"}
     }
 );
 
