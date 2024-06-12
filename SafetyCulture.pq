@@ -303,7 +303,8 @@ ScheduleOccurrenceType = type table [
     occurrence_status = text,
     assignee_status = text,
     audit_id = nullable text,
-    completed_at = nullable datetimezone
+    completed_at = nullable datetimezone,
+    note = nullable text
 ];
 
 ActionType = type table [
