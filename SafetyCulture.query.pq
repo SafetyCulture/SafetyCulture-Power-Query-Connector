@@ -57,7 +57,7 @@ shared SafetyCulture.UnitTest = [
         Fact("We have Schedule Assignees data?", true, not Table.IsEmpty(ScheduleAssignees)),
         Fact("Schedule Assignees has 5 columns", 5, List.Count(Table.ColumnNames(ScheduleAssignees))),
         Fact("We have Schedule Occurrences data?", true, not Table.IsEmpty(ScheduleOccurrences)),
-        Fact("Schedule Occurrences has 12 columns", 12, List.Count(Table.ColumnNames(ScheduleOccurrences))),
+        Fact("Schedule Occurrences has 14 columns", 14, List.Count(Table.ColumnNames(ScheduleOccurrences))),
         Fact("We have Actions data?", true, not Table.IsEmpty(Actions)),
         Fact("Schedules has 16 columns", 16, List.Count(Table.ColumnNames(Actions))),
         Fact("We have Action Assignees data?", true, not Table.IsEmpty(ActionAssignees)),
