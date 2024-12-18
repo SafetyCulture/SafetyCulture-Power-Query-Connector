@@ -379,7 +379,8 @@ IssueType = type table [
     modified_at = nullable datetimezone,
     completed_at = nullable datetimezone,
     asset_id = nullable text,
-    unique_id = nullable text
+    unique_id = nullable text,
+    occurred_at = nullable datetimezone
 ];
 
 IssueTimelineItemType = type table [
@@ -558,15 +559,15 @@ CreateNavTable = (group as text) as table =>
 GetEntity = (url as text, entity as text, optional query as record) as table =>
     let
         now = DateTimeZone.ToText(DateTimeZone.UtcNow(), "yyyy-MM-ddTHH:mm:ss"),
-        withQuery = 
-            if (query <> null) 
+        withQuery =
+            if (query <> null)
                 then entity & "?" & Uri.BuildQueryString(query)
             else if (query = null and entity = "training-course-progress")
                 then entity & "?completion_status=COMPLETION_STATUS_COMPLETED&limit=100"
             else if (query = null and entity = "inspection_items")
-                then entity & "?modified_before="&now&"Z"                
+                then entity & "?modified_before="&now&"Z"
             else entity,
-        
+
         fullUrl = Uri.Combine(url, withQuery),
         schema = GetSchemaForEntity(entity),
         result = GetAllPagesByNextLink(fullUrl, schema),
