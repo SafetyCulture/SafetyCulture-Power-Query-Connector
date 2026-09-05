@@ -82,5 +82,5 @@ To release a new version you just need to push a new tag and `GitHub Actions` wi
 `git tag -a v1.0 -m "Initial Public Release"`.  
 Acceptable version formats include `v1.0` and `v1.0-beta2`.
 3. Push your tag to GitHub using `git push origin v1.0`.
-4. Wait for [Github Actions](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/actions) to finish its work.
+4. Wait for [GitHub Actions](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/actions) to finish its work.
 4. Update the [release draft](https://github.com/SafetyCulture/SafetyCulture-Power-Query-Connector/releases) and publish it.
